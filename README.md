@@ -1,9 +1,9 @@
 <div align="center">
-  <img src="nanobot_logo.png" alt="nanobot" width="500">
-  <h1>nanobot: Ultra-Lightweight Personal AI Assistant</h1>
+  <img src="icron_logo.png" alt="icron" width="500">
+  <h1>icron: Ultra-Lightweight Personal AI Assistant</h1>
   <p>
-    <a href="https://pypi.org/project/nanobot-ai/"><img src="https://img.shields.io/pypi/v/nanobot-ai" alt="PyPI"></a>
-    <a href="https://pepy.tech/project/nanobot-ai"><img src="https://static.pepy.tech/badge/nanobot-ai" alt="Downloads"></a>
+    <a href="https://pypi.org/project/icron/"><img src="https://img.shields.io/pypi/v/icron" alt="PyPI"></a>
+    <a href="https://pepy.tech/project/icron"><img src="https://static.pepy.tech/badge/icron" alt="Downloads"></a>
     <img src="https://img.shields.io/badge/python-≥3.11-blue" alt="Python">
     <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
     <a href="./COMMUNICATION.md"><img src="https://img.shields.io/badge/Feishu-Group-E9DBFC?style=flat&logo=feishu&logoColor=white" alt="Feishu"></a>
@@ -12,15 +12,15 @@
   </p>
 </div>
 
-🐈 **nanobot** is an **ultra-lightweight** personal AI assistant inspired by [Clawdbot](https://github.com/openclaw/openclaw) 
+🐈 **icron** is an **ultra-lightweight** personal AI assistant inspired by [Clawdbot](https://github.com/openclaw/openclaw) 
 
 ⚡️ Delivers core agent functionality in just **~4,000** lines of code — **99% smaller** than Clawdbot's 430k+ lines.
 
 ## 📢 News
 
-- **2026-02-01** 🎉 nanobot launched! Welcome to try 🐈 nanobot!
+- **2026-02-01** 🎉 icron launched! Welcome to try 🐈 icron!
 
-## Key Features of nanobot:
+## Key Features of icron:
 
 🪶 **Ultra-Lightweight**: Just ~4,000 lines of code — 99% smaller than Clawdbot - core functionality.
 
@@ -33,7 +33,7 @@
 ## 🏗️ Architecture
 
 <p align="center">
-  <img src="nanobot_arch.png" alt="nanobot architecture" width="800">
+  <img src="icron_arch.png" alt="icron architecture" width="800">
 </p>
 
 ## ✨ Features
@@ -64,37 +64,37 @@
 **Install from source** (latest features, recommended for development)
 
 ```bash
-git clone https://github.com/HKUDS/nanobot.git
-cd nanobot
+git clone https://github.com/zebbern/icron.git
+cd icron
 pip install -e .
 ```
 
 **Install with [uv](https://github.com/astral-sh/uv)** (stable, fast)
 
 ```bash
-uv tool install nanobot-ai
+uv tool install icron
 ```
 
 **Install from PyPI** (stable)
 
 ```bash
-pip install nanobot-ai
+pip install icron
 ```
 
 ## 🚀 Quick Start
 
 > [!TIP]
-> Set your API key in `~/.nanobot/config.json`.
+> Set your API key in `~/.icron/config.json`.
 > Get API keys: [OpenRouter](https://openrouter.ai/keys) or [Together AI](https://api.together.xyz/settings/api-keys) (LLM) · [Brave Search](https://brave.com/search/api/) (optional, for web search)
 > You can also change the model to `minimax/minimax-m2` for lower cost.
 
 **1. Initialize**
 
 ```bash
-nanobot onboard
+icron onboard
 ```
 
-**2. Configure** (`~/.nanobot/config.json`)
+**2. Configure** (`~/.icron/config.json`)
 
 ```json
 {
@@ -118,7 +118,7 @@ nanobot onboard
 }
 ```
 
-**Together AI alternative** (`~/.nanobot/config.json`)
+**Together AI alternative** (`~/.icron/config.json`)
 
 ```json
 {
@@ -139,14 +139,14 @@ nanobot onboard
 **3. Chat**
 
 ```bash
-nanobot agent -m "What is 2+2?"
+icron agent -m "What is 2+2?"
 ```
 
 That's it! You have a working AI assistant in 2 minutes.
 
 ## 🖥️ Local Models (vLLM)
 
-Run nanobot with your own local models using vLLM or any OpenAI-compatible server.
+Run icron with your own local models using vLLM or any OpenAI-compatible server.
 
 **1. Start your vLLM server**
 
@@ -154,7 +154,7 @@ Run nanobot with your own local models using vLLM or any OpenAI-compatible serve
 vllm serve meta-llama/Llama-3.1-8B-Instruct --port 8000
 ```
 
-**2. Configure** (`~/.nanobot/config.json`)
+**2. Configure** (`~/.icron/config.json`)
 
 ```json
 {
@@ -175,7 +175,7 @@ vllm serve meta-llama/Llama-3.1-8B-Instruct --port 8000
 **3. Chat**
 
 ```bash
-nanobot agent -m "Hello from my local LLM!"
+icron agent -m "Hello from my local LLM!"
 ```
 
 > [!TIP]
@@ -188,7 +188,7 @@ Railway can build from the included `Dockerfile` and uses `railway.json` to forc
 **Required environment variables**
 - `TOGETHER_API_KEY` (or `TOGETHERAI_API_KEY`)
 - `MODEL` (Together model name, e.g. `meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo`)
-- `NANOBOT_WRITE_CONFIG=1`
+- `icron_WRITE_CONFIG=1`
 
 **Optional environment variables**
 - `OPENROUTER_API_KEY` (if you prefer OpenRouter)
@@ -205,12 +205,12 @@ The gateway exposes a lightweight web UI for configuring keys and basic settings
 - Open `http://<host>:<port>/` to view and update settings.
 - Advanced GUI (Svelte): build with `cd ui && npm install && npm run build`, then open `http://<host>:<port>/app`.
 - After saving, restart the service to apply changes.
-- If `NANOBOT_WRITE_CONFIG=1`, your changes will be overwritten on restart. Set it to `0` after the first save.
-- Disable the UI with `NANOBOT_HTTP_ENABLED=0`.
+- If `icron_WRITE_CONFIG=1`, your changes will be overwritten on restart. Set it to `0` after the first save.
+- Disable the UI with `icron_HTTP_ENABLED=0`.
 
 ## 💬 Chat Apps
 
-Talk to your nanobot through Telegram, WhatsApp, or Discord — anytime, anywhere.
+Talk to your icron through Telegram, WhatsApp, or Discord — anytime, anywhere.
 
 | Channel | Setup |
 |---------|-------|
@@ -245,7 +245,7 @@ Talk to your nanobot through Telegram, WhatsApp, or Discord — anytime, anywher
 **3. Run**
 
 ```bash
-nanobot gateway
+icron gateway
 ```
 
 </details>
@@ -258,7 +258,7 @@ Requires **Node.js ≥18**.
 **1. Link device**
 
 ```bash
-nanobot channels login
+icron channels login
 # Scan QR with WhatsApp → Settings → Linked Devices
 ```
 
@@ -279,10 +279,10 @@ nanobot channels login
 
 ```bash
 # Terminal 1
-nanobot channels login
+icron channels login
 
 # Terminal 2
-nanobot gateway
+icron gateway
 ```
 
 </details>
@@ -294,7 +294,7 @@ nanobot gateway
 
 1. Go to [Discord Developer Portal](https://discord.com/developers/applications) and log in
 2. Click **"New Application"** (top-right button)
-3. Enter a name (e.g., "nanobot") and click **Create**
+3. Enter a name (e.g., "icron") and click **Create**
 4. In the left sidebar, click **"Bot"**
 5. Click **"Reset Token"** (or "Add Bot" if you haven't created one yet)
 6. **Copy the token** — this is your bot token (you won't be able to see it again!)
@@ -318,7 +318,7 @@ nanobot gateway
 
 **3. Configure**
 
-Edit `~/.nanobot/config.json`:
+Edit `~/.icron/config.json`:
 
 ```json
 {
@@ -353,14 +353,14 @@ Edit `~/.nanobot/config.json`:
 > - Use `allowed_channels` to restrict the bot to specific channels
 >
 > **Image Support:**
-> - ✅ **Receiving images**: Bot downloads attachments to `~/.nanobot/media/`
+> - ✅ **Receiving images**: Bot downloads attachments to `~/.icron/media/`
 > - ✅ **Vision/analysis**: Claude can analyze images sent to the bot
 > - ✅ **Sending images**: Agent can send images via tool results
 
 **4. Run**
 
 ```bash
-nanobot gateway
+icron gateway
 ```
 
 Your bot is now ready! Send it a message in any server it's invited to, or DM it directly.
@@ -369,7 +369,7 @@ Your bot is now ready! Send it a message in any server it's invited to, or DM it
 
 ## ⚙️ Configuration
 
-Config file: `~/.nanobot/config.json`
+Config file: `~/.icron/config.json`
 
 ### Providers
 
@@ -429,27 +429,27 @@ Config file: `~/.nanobot/config.json`
 
 | Command | Description |
 |---------|-------------|
-| `nanobot onboard` | Initialize config & workspace |
-| `nanobot agent -m "..."` | Chat with the agent |
-| `nanobot agent` | Interactive chat mode |
-| `nanobot gateway` | Start the gateway (connects to Telegram/WhatsApp/Discord) |
-| `nanobot status` | Show status |
-| `nanobot channels login` | Link WhatsApp (scan QR) |
-| `nanobot channels status` | Show channel status |
+| `icron onboard` | Initialize config & workspace |
+| `icron agent -m "..."` | Chat with the agent |
+| `icron agent` | Interactive chat mode |
+| `icron gateway` | Start the gateway (connects to Telegram/WhatsApp/Discord) |
+| `icron status` | Show status |
+| `icron channels login` | Link WhatsApp (scan QR) |
+| `icron channels status` | Show channel status |
 
 <details>
 <summary><b>Scheduled Tasks (Cron)</b></summary>
 
 ```bash
 # Add a job
-nanobot cron add --name "daily" --message "Good morning!" --cron "0 9 * * *"
-nanobot cron add --name "hourly" --message "Check status" --every 3600
+icron cron add --name "daily" --message "Good morning!" --cron "0 9 * * *"
+icron cron add --name "hourly" --message "Check status" --every 3600
 
 # List jobs
-nanobot cron list
+icron cron list
 
 # Remove a job
-nanobot cron remove <job_id>
+icron cron remove <job_id>
 ```
 
 </details>
@@ -457,32 +457,32 @@ nanobot cron remove <job_id>
 ## 🐳 Docker
 
 > [!TIP]
-> The `-v ~/.nanobot:/root/.nanobot` flag mounts your local config directory into the container, so your config and workspace persist across container restarts.
+> The `-v ~/.icron:/root/.icron` flag mounts your local config directory into the container, so your config and workspace persist across container restarts.
 
-Build and run nanobot in a container:
+Build and run icron in a container:
 
 ```bash
 # Build the image
-docker build -t nanobot .
+docker build -t icron .
 
 # Initialize config (first time only)
-docker run -v ~/.nanobot:/root/.nanobot --rm nanobot onboard
+docker run -v ~/.icron:/root/.icron --rm icron onboard
 
 # Edit config on host to add API keys
-vim ~/.nanobot/config.json
+vim ~/.icron/config.json
 
 # Run gateway (connects to Telegram/WhatsApp/Discord)
-docker run -v ~/.nanobot:/root/.nanobot -p 18790:18790 nanobot gateway
+docker run -v ~/.icron:/root/.icron -p 18790:18790 icron gateway
 
 # Or run a single command
-docker run -v ~/.nanobot:/root/.nanobot --rm nanobot agent -m "Hello!"
-docker run -v ~/.nanobot:/root/.nanobot --rm nanobot status
+docker run -v ~/.icron:/root/.icron --rm icron agent -m "Hello!"
+docker run -v ~/.icron:/root/.icron --rm icron status
 ```
 
 ## 📁 Project Structure
 
 ```
-nanobot/
+icron/
 ├── agent/          # 🧠 Core agent logic
 │   ├── loop.py     #    Agent loop (LLM ↔ tool execution)
 │   ├── context.py  #    Prompt builder
@@ -505,7 +505,7 @@ nanobot/
 
 PRs welcome! The codebase is intentionally small and readable. 🤗
 
-**Roadmap** — Pick an item and [open a PR](https://github.com/HKUDS/nanobot/pulls)!
+**Roadmap** — Pick an item and [open a PR](https://github.com/zebbern/icron/pulls)!
 
 - [x] **Voice Transcription** — Support for Groq Whisper (Issue #13)
 - [ ] **Multi-modal** — See and hear (images, voice, video)
@@ -516,29 +516,29 @@ PRs welcome! The codebase is intentionally small and readable. 🤗
 
 ### Contributors
 
-<a href="https://github.com/HKUDS/nanobot/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=HKUDS/nanobot" />
+<a href="https://github.com/zebbern/icron/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=zebbern/icron" />
 </a>
 
 
 ## ⭐ Star History
 
 <div align="center">
-  <a href="https://star-history.com/#HKUDS/nanobot&Date">
+  <a href="https://star-history.com/#zebbern/icron&Date">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=HKUDS/nanobot&type=Date&theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=HKUDS/nanobot&type=Date" />
-      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=HKUDS/nanobot&type=Date" style="border-radius: 15px; box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);" />
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=zebbern/icron&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=zebbern/icron&type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=zebbern/icron&type=Date" style="border-radius: 15px; box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);" />
     </picture>
   </a>
 </div>
 
 <p align="center">
-  <em> Thanks for visiting ✨ nanobot!</em><br><br>
-  <img src="https://visitor-badge.laobi.icu/badge?page_id=HKUDS.nanobot&style=for-the-badge&color=00d4ff" alt="Views">
+  <em> Thanks for visiting ✨ icron!</em><br><br>
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=HKUDS.icron&style=for-the-badge&color=00d4ff" alt="Views">
 </p>
 
 
 <p align="center">
-  <sub>nanobot is for educational, research, and technical exchange purposes only</sub>
+  <sub>icron is for educational, research, and technical exchange purposes only</sub>
 </p>

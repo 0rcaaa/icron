@@ -2,19 +2,19 @@ import asyncio
 import os
 
 import pytest
-from nanobot.agent.loop import AgentLoop
-from nanobot.bus.queue import MessageBus
-from nanobot.providers.lazyllm_provider import LazyLLMProvider
+from icron.agent.loop import AgentLoop
+from icron.bus.queue import MessageBus
+from icron.providers.lazyllm_provider import LazyLLMProvider
 
 
 SOURCE = "doubao"
-API_KEY = os.getenv("NANOBOT_TEST_DOUBAO_API_KEY", "")
+API_KEY = os.getenv("ICRON_TEST_DOUBAO_API_KEY", "")
 MODEL = "doubao-seed-1-8-251228"
 
 
 def test_agent_loop_minimal_e2e(tmp_path):
     if not API_KEY:
-        pytest.skip("Set NANOBOT_TEST_DOUBAO_API_KEY to run real network E2E.")
+        pytest.skip("Set ICRON_TEST_DOUBAO_API_KEY to run real network E2E.")
     workspace = tmp_path / "workspace"
     workspace.mkdir(parents=True, exist_ok=True)
     target_file = workspace / "note.txt"

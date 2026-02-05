@@ -3,11 +3,11 @@ import os
 
 import pytest
 
-from nanobot.providers.lazyllm_provider import LazyLLMProvider
+from icron.providers.lazyllm_provider import LazyLLMProvider
 
 
 SOURCE = "doubao"
-API_KEY = os.getenv("NANOBOT_TEST_DOUBAO_API_KEY", "")
+API_KEY = os.getenv("ICRON_TEST_DOUBAO_API_KEY", "")
 MODEL = "doubao-seed-1-8-251228"
 
 
@@ -27,7 +27,7 @@ class TestLazyLLMProvider:
 
     def test_chat_with_real_key(self):
         if not API_KEY:
-            pytest.skip("Set NANOBOT_TEST_DOUBAO_API_KEY to run real network test.")
+            pytest.skip("Set ICRON_TEST_DOUBAO_API_KEY to run real network test.")
         provider = LazyLLMProvider(
             api_key=API_KEY,
             source=SOURCE,
