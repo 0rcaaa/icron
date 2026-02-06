@@ -2,11 +2,11 @@
 set -euo pipefail
 
 # Optional install (useful on platforms that mount source but skip image builds).
-if [[ "${NANOBOT_SKIP_INSTALL:-}" != "1" ]]; then
+if [[ "${icron_SKIP_INSTALL:-}" != "1" ]]; then
   install_needed=0
-  if [[ "${NANOBOT_FORCE_INSTALL:-}" == "1" ]]; then
+  if [[ "${icron_FORCE_INSTALL:-}" == "1" ]]; then
     install_needed=1
-  elif ! python -m pip show nanobot-ai >/dev/null 2>&1; then
+  elif ! python -m pip show icron >/dev/null 2>&1; then
     install_needed=1
   fi
 
@@ -19,12 +19,12 @@ fi
 # Prepare config/workspace directories
 # Prefer Railway volume at /Nano if present and envs not set.
 if [[ -d "/Nano" ]]; then
-  export NANOBOT_DATA_DIR="${NANOBOT_DATA_DIR:-/Nano/.nanobot}"
-  export NANOBOT_WORKSPACE="${NANOBOT_WORKSPACE:-/Nano/workspace}"
+  export icron_DATA_DIR="${icron_DATA_DIR:-/Nano/.icron}"
+  export icron_WORKSPACE="${icron_WORKSPACE:-/Nano/workspace}"
 fi
 
-CONFIG_DIR="${NANOBOT_DATA_DIR:-$HOME/.nanobot}"
-WORKSPACE_DIR="${NANOBOT_WORKSPACE:-$HOME/.nanobot/workspace}"
+CONFIG_DIR="${icron_DATA_DIR:-$HOME/.icron}"
+WORKSPACE_DIR="${icron_WORKSPACE:-$HOME/.icron/workspace}"
 CONFIG_FILE="${CONFIG_DIR}/config.json"
 mkdir -p "$CONFIG_DIR"
 mkdir -p "$WORKSPACE_DIR"
@@ -46,7 +46,7 @@ fi
 
 # Create config.json from environment variables (basic example).
 # Set these env vars in Railway: TOGETHER_API_KEY (or TOGETHERAI_API_KEY), OPENROUTER_API_KEY, TELEGRAM_TOKEN, TELEGRAM_ALLOW_FROM (comma-separated), MODEL
-WRITE_CONFIG="${NANOBOT_WRITE_CONFIG:-auto}"
+WRITE_CONFIG="${icron_WRITE_CONFIG:-auto}"
 should_write=0
 if [[ "$WRITE_CONFIG" == "1" || "$WRITE_CONFIG" == "true" || "$WRITE_CONFIG" == "yes" ]]; then
   should_write=1
@@ -113,23 +113,23 @@ else
   echo "no config found at $CONFIG_FILE"
 fi
 
-if [[ "${NANOBOT_PRINT_CONFIG:-}" == "1" && -f "$CONFIG_FILE" ]]; then
+if [[ "${icron_PRINT_CONFIG:-}" == "1" && -f "$CONFIG_FILE" ]]; then
   ls -l "$CONFIG_FILE"
   cat "$CONFIG_FILE"
 fi
 
 # Run the CLI entrypoint you want. Options:
-# - For persistent gateway (connects to chat channels): nanobot gateway
-# - For interactive/testing agent single run: nanobot agent -m "Hello"
+# - For persistent gateway (connects to chat channels): icron gateway
+# - For interactive/testing agent single run: icron agent -m "Hello"
 # Start as gateway by default for background bot:
 GATEWAY_ARGS=()
-if [[ -n "${NANOBOT_PORT:-}" ]]; then
-  GATEWAY_ARGS+=(--port "${NANOBOT_PORT}")
+if [[ -n "${icron_PORT:-}" ]]; then
+  GATEWAY_ARGS+=(--port "${icron_PORT}")
 elif [[ -n "${PORT:-}" ]]; then
   GATEWAY_ARGS+=(--port "${PORT}")
 fi
-if [[ "${NANOBOT_VERBOSE:-}" == "1" ]]; then
+if [[ "${icron_VERBOSE:-}" == "1" ]]; then
   GATEWAY_ARGS+=(--verbose)
 fi
 
-exec python -m nanobot gateway "${GATEWAY_ARGS[@]}"
+exec python -m icron gateway "${GATEWAY_ARGS[@]}"

@@ -6,8 +6,8 @@ Usage:
     python rename_project.py <old_name> <new_name> [--dry-run]
     
 Example:
-    python rename_project.py nanobot icron
-    python rename_project.py nanobot icron --dry-run
+    python rename_project.py icron icron
+    python rename_project.py icron icron --dry-run
 """
 
 import os
@@ -116,7 +116,7 @@ def rename_project(
     # Documentation replacements
     doc_replacements = {
         old_name: new_name,
-        f"HKUDS/{new_name}": f"zebbern/{new_name}",  # GitHub URL update
+        f"zebbern/{new_name}": f"zebbern/{new_name}",  # GitHub URL update
         f"{old_upper}_": f"{new_upper}_",
         f".{old_name}": f".{new_name}",
     }

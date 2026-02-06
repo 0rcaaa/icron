@@ -185,7 +185,7 @@
   <header class="hero">
     <div>
       <span class="eyebrow">Gateway UI</span>
-      <h1>nanobot Control Room</h1>
+      <h1>icron Control Room</h1>
       <p>Manage models, providers, and channels without touching the filesystem.</p>
     </div>
     <div class={`status-pill ${status === 'connected' ? 'ok' : status === 'error' ? 'err' : ''}`}>

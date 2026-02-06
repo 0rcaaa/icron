@@ -16,12 +16,12 @@ WORKDIR /app
 
 # Install Python dependencies first (cached layer)
 COPY pyproject.toml README.md LICENSE ./
-RUN mkdir -p nanobot bridge && touch nanobot/__init__.py && \
+RUN mkdir -p icron bridge && touch icron/__init__.py && \
     uv pip install --system --no-cache . && \
-    rm -rf nanobot bridge
+    rm -rf icron bridge
 
 # Copy the full source and install
-COPY nanobot/ nanobot/
+COPY icron/ icron/
 COPY bridge/ bridge/
 COPY ui/ ui/
 COPY start.sh /app/start.sh
@@ -39,10 +39,10 @@ RUN npm install && npm run build
 WORKDIR /app
 
 # Create config directory
-RUN mkdir -p /root/.nanobot
+RUN mkdir -p /root/.icron
 
 # Gateway default port
 EXPOSE 18790
 
-ENTRYPOINT ["nanobot"]
+ENTRYPOINT ["icron"]
 CMD ["status"]
