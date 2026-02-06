@@ -93,7 +93,8 @@
     },
     "exec": {
       "timeout": 60,
-      "restrictToWorkspace": false
+      "restrictToWorkspace": false,
+      "maxContextTokens": 100000
     },
     "mcp": {
       "enabled": false,

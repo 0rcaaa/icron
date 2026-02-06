@@ -120,6 +120,7 @@ class ExecToolConfig(BaseModel):
     """Shell exec tool configuration."""
     timeout: int = 60
     restrict_to_workspace: bool = False  # If true, block commands accessing paths outside workspace
+    max_context_tokens: int = 100000  # Max tokens for conversation history sent to LLM
 
 
 class MCPServerConfig(BaseModel):

@@ -1,9 +1,7 @@
 .assets
 .env
 config.json
-*.pyc
-dist/
-build/
+node_modules/
 docs/
 *.egg-info/
 *.egg

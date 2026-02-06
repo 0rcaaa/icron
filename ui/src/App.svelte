@@ -18,6 +18,7 @@
     openrouterApiBase: '',
     websearchApiKey: '',
     restrictToWorkspace: false,
+    maxContextTokens: 100000,
     telegramEnabled: false,
     telegramToken: '',
     telegramAllowFrom: '',
@@ -58,6 +59,7 @@
       openrouterApiBase: safeGet(cfg, ['providers', 'openrouter', 'apiBase'], ''),
       websearchApiKey: safeGet(cfg, ['tools', 'web', 'search', 'apiKey'], ''),
       restrictToWorkspace: !!safeGet(cfg, ['tools', 'exec', 'restrictToWorkspace'], false),
+      maxContextTokens: safeGet(cfg, ['tools', 'exec', 'maxContextTokens'], 100000),
       telegramEnabled: !!safeGet(cfg, ['channels', 'telegram', 'enabled'], false),
       telegramToken: safeGet(cfg, ['channels', 'telegram', 'token'], ''),
       telegramAllowFrom: toCsv(safeGet(cfg, ['channels', 'telegram', 'allowFrom'], [])),
@@ -137,6 +139,7 @@
     next.tools.web.search.apiKey = form.websearchApiKey;
     next.tools.exec = next.tools.exec || {};
     next.tools.exec.restrictToWorkspace = !!form.restrictToWorkspace;
+    next.tools.exec.maxContextTokens = parseInt(form.maxContextTokens) || 100000;
 
     next.channels = next.channels || {};
     next.channels.telegram = next.channels.telegram || {};
@@ -234,6 +237,12 @@
             <span>Restrict Tools to Workspace</span>
           </label>
           <p class="hint">When enabled, file operations are limited to the workspace folder for security.</p>
+
+          <label class="field">
+            <span>Max Context Tokens</span>
+            <input type="number" bind:value={form.maxContextTokens} min="10000" max="200000" step="10000" />
+          </label>
+          <p class="hint">Maximum tokens for conversation history. Older messages are trimmed when limit exceeded.</p>
 
           <div class="split">
             <label class="field">

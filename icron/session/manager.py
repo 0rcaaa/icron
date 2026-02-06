@@ -9,6 +9,7 @@ from typing import Any
 from loguru import logger
 
 from icron.utils.helpers import ensure_dir, safe_filename
+from icron.utils.tokens import count_message_tokens
 
 
 @dataclass
@@ -36,21 +37,48 @@ class Session:
         self.messages.append(msg)
         self.updated_at = datetime.now()
     
-    def get_history(self, max_messages: int = 50) -> list[dict[str, Any]]:
+    def get_history(self, max_messages: int = 50, max_tokens: int | None = None) -> list[dict[str, Any]]:
         """
         Get message history for LLM context.
         
         Args:
             max_messages: Maximum messages to return.
+            max_tokens: Optional token limit. If set, trims oldest messages
+                       to stay within budget while keeping recent context.
         
         Returns:
             List of messages in LLM format.
         """
-        # Get recent messages
+        # Get recent messages (by count limit first)
         recent = self.messages[-max_messages:] if len(self.messages) > max_messages else self.messages
         
-        # Convert to LLM format (just role and content)
-        return [{"role": m["role"], "content": m["content"]} for m in recent]
+        # Convert to LLM format
+        formatted = [{"role": m["role"], "content": m["content"]} for m in recent]
+        
+        # If no token limit, return all
+        if max_tokens is None:
+            return formatted
+        
+        # Trim by tokens (keep newest messages, remove oldest)
+        result = []
+        total_tokens = 0
+        trimmed_count = 0
+        
+        for msg in reversed(formatted):
+            tokens = count_message_tokens(msg)
+            if total_tokens + tokens > max_tokens and result:
+                # Would exceed budget, stop here
+                trimmed_count = len(formatted) - len(result)
+                break
+            result.append(msg)
+            total_tokens += tokens
+        
+        # Log if trimming occurred
+        if trimmed_count > 0:
+            logger.debug(f"Trimmed {trimmed_count} old messages from history ({total_tokens} tokens kept)")
+        
+        # Restore chronological order
+        return list(reversed(result))
     
     def clear(self) -> None:
         """Clear all messages in the session."""

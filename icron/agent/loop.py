@@ -279,9 +279,10 @@ class AgentLoop:
         if hasattr(self, '_reminder_tool'):
             self._reminder_tool.set_context(msg.channel, msg.chat_id)
         
-        # Build initial messages (use get_history for LLM-formatted messages)
+        # Build initial messages (use get_history for LLM-formatted messages with token trimming)
+        max_tokens = self.exec_config.max_context_tokens if self.exec_config else 100000
         messages = self.context.build_messages(
-            history=session.get_history(),
+            history=session.get_history(max_tokens=max_tokens),
             current_message=msg.content,
             media=msg.media if msg.media else None,
         )
@@ -407,9 +408,10 @@ class AgentLoop:
         if isinstance(spawn_tool, SpawnTool):
             spawn_tool.set_context(origin_channel, origin_chat_id)
         
-        # Build messages with the announce content
+        # Build messages with the announce content (with token trimming)
+        max_tokens = self.exec_config.max_context_tokens if self.exec_config else 100000
         messages = self.context.build_messages(
-            history=session.get_history(),
+            history=session.get_history(max_tokens=max_tokens),
             current_message=msg.content
         )
         
