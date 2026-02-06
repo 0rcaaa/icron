@@ -28,7 +28,9 @@ COPY start.sh /app/start.sh
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN uv pip install --system --no-cache .
 
-RUN chmod +x /app/start.sh /entrypoint.sh
+# Convert line endings (CRLF to LF) and make scripts executable
+RUN sed -i 's/\r$//' /app/start.sh /entrypoint.sh && \
+    chmod +x /app/start.sh /entrypoint.sh
 
 # Build the WhatsApp bridge
 WORKDIR /app/bridge
