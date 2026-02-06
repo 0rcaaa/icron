@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Test script for Docker image build and basic operations
 set -euo pipefail
 
 IMAGE_NAME="icron-test"

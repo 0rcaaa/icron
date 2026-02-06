@@ -4,10 +4,10 @@ Rename a Python project throughout the codebase.
 
 Usage:
     python rename_project.py <old_name> <new_name> [--dry-run]
-    
+
 Example:
-    python rename_project.py icron icron
-    python rename_project.py icron icron --dry-run
+    python rename_project.py nanobot icron
+    python rename_project.py nanobot icron --dry-run
 """
 
 import os

@@ -17,7 +17,7 @@ if [[ "${icron_SKIP_INSTALL:-}" != "1" ]]; then
 fi
 
 # Prepare config/workspace directories
-# Prefer Railway volume at /Nano if present and envs not set.
+# Prefer Railway volume at /icron if present and envs not set.
 if [[ -d "/Nano" ]]; then
   export icron_DATA_DIR="${icron_DATA_DIR:-/Nano/.icron}"
   export icron_WORKSPACE="${icron_WORKSPACE:-/Nano/workspace}"

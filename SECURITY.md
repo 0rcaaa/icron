@@ -14,6 +14,8 @@ If you discover a security vulnerability in icron, please report it by:
 
 We aim to respond to security reports within 48 hours.
 
+---
+
 ## Security Best Practices
 
 ### 1. API Key Management
