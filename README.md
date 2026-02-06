@@ -1,17 +1,22 @@
 <div align="center">
-  <img src="" alt="https://github.com/zebbern/icron/blob/main/case/icron.png" width="500">
-  <h1>icron your lightweight Personal AI Assistant</h1>
+  <img src="/case/icron.png" alt="https://github.com/zebbern/icron/blob/main/case/icron.png" width="400">
+  
+  <kbd><b>icron YOUR lightweight Personal AI Assistant</b></kbd>
 </div>
-
-**icron** is a **lightweight** personal AI assistant designed for simplicity and extensibility.
-Built with Python, it supports multiple chat channels (Discord, Telegram, WhatsApp) and can connect to any OpenAI-compatible LLM provider (Anthropic, OpenRouter, Together, Groq, vLLM). With a modular architecture and built-in tools for file operations, web search, shell execution, memory, and scheduling, icron is your personal assistant for research, coding, reminders, and more.
 
 <p align="center">
 <a href="#install">Install</a> · <a href="#quick-start">Quick Start</a> · <a href="#key-features">Features</a> · <a href="#chat-channels">Channels</a> · <a href="#memory--persistence">Memory</a> · <a href="#reminders--scheduling">Reminders</a><br>
 <a href="#slash-commands">Commands</a> · <a href="#mcp-server-support">MCP</a> · <a href="#security">Security</a> · <a href="#configuration-reference">Config</a> · <a href="#cli-reference">CLI</a> · <a href="#docker">Docker</a>
 </p>
 
-### Core Capabilities
+> [!note]
+> icron is a lightweight personal AI assistant built for simplicity and extensibility.
+> 
+> - Multi-platform support (Discord, Telegram, WhatsApp)
+> - Works with any OpenAI-compatible LLM (Anthropic, OpenRouter, Together, Groq, vLLM)
+> - Built-in tools: file operations, web search, shell execution, memory, scheduling
+> 
+> Perfect for research, coding assistance, reminders, and daily automation.
 
 | Category | Tools |
 |----------|-------|
