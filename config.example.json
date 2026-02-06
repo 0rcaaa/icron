@@ -2,23 +2,30 @@
   "agents": {
     "defaults": {
       "workspace": "~/.icron/workspace",
-      "model": "anthropic/claude-opus-4-5",
+      "model": "@anthropic/claude-sonnet-4-20250514",
       "maxTokens": 8192,
       "temperature": 0.7,
       "maxToolIterations": 20
     }
   },
   "providers": {
-    "provider": "lazyllm",
-    "openrouter": {
-      "apiKey": "sk-or-v1-xxx",
-      "apiBase": "https://openrouter.ai/api/v1"
-    },
     "anthropic": {
       "apiKey": "",
       "apiBase": null
     },
     "openai": {
+      "apiKey": "",
+      "apiBase": null
+    },
+    "openrouter": {
+      "apiKey": "",
+      "apiBase": "https://openrouter.ai/api/v1"
+    },
+    "together": {
+      "apiKey": "",
+      "apiBase": null
+    },
+    "groq": {
       "apiKey": "",
       "apiBase": null
     },
@@ -33,25 +40,44 @@
     "vllm": {
       "apiKey": "",
       "apiBase": null
-    },
-    "lazyllm": {
-      "apiKey": "YOUR_OWN_API_KEY",
-      "apiBase": null,
-      "modelSource": "siliconflow",
-      "modelId": "Pro/moonshotai/Kimi-K2.5",
-      "modelType": "VLM"
     }
   },
   "channels": {
-    "whatsapp": {
+    "discord": {
       "enabled": false,
-      "bridgeUrl": "ws://localhost:3001",
-      "allowFrom": []
+      "token": "",
+      "allowFrom": [],
+      "allowedChannels": []
     },
     "telegram": {
       "enabled": false,
       "token": "",
       "allowFrom": []
+    },
+    "whatsapp": {
+      "enabled": false,
+      "bridgeUrl": "ws://localhost:3001",
+      "allowFrom": []
+    },
+    "slack": {
+      "enabled": false,
+      "mode": "socket",
+      "botToken": "",
+      "appToken": "",
+      "groupPolicy": "open",
+      "groupAllowFrom": [],
+      "dm": {
+        "enabled": true,
+        "policy": "open",
+        "allowFrom": []
+      }
+    },
+    "feishu": {
+      "enabled": false,
+      "appId": "",
+      "appSecret": "",
+      "verificationToken": "",
+      "encryptKey": ""
     }
   },
   "gateway": {
@@ -63,6 +89,21 @@
       "search": {
         "apiKey": "",
         "maxResults": 5
+      }
+    },
+    "exec": {
+      "timeout": 60,
+      "restrictToWorkspace": false
+    },
+    "mcp": {
+      "enabled": false,
+      "servers": {
+        "example-server": {
+          "transport": "stdio",
+          "command": "python",
+          "args": ["/path/to/server.py"],
+          "env": {}
+        }
       }
     }
   }

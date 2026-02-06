@@ -1,159 +1,105 @@
 # icron
 
-You are working on **icron**, an ultra-lightweight personal AI assistant framework (~5,145 LOC Python).
-
-## Critical: Question Ambiguities
-
-Before implementing any feature or task, you MUST aggressively clarify ambiguities. Do not assume. Do not guess. Ask the user directly:
-
-- **Scope**: "What exactly should this feature do? What should it NOT do?"
-- **Edge cases**: "How should this handle [specific edge case]?"
-- **Integration**: "How does this interact with existing [component]?"
-- **Error states**: "What should happen when [failure scenario]?"
-- **User expectations**: "What does success look like for this feature?"
-- **Priorities**: "If we can't have everything, what's essential vs nice-to-have?"
-
-Create detailed feature specifications BEFORE writing code. Push back on vague requirements. A well-defined feature prevents wasted implementation cycles.
+A lightweight personal AI assistant framework with multi-channel support.
 
 ## Architecture
 
 ```
-User -> Channel -> MessageBus -> AgentLoop -> LLM
+User -> Channel -> MessageBus -> AgentLoop -> LLM Provider
                         |              |
                         v              v
-                   SessionStore    ToolRegistry
+                   SessionStore    ToolRegistry (18 tools + MCP)
 ```
 
-- **Channels**: Telegram, WhatsApp, Feishu/Lark - extend `BaseChannel`
-- **Message Bus**: Decouples channels from agent via async queues
-- **Agent Loop**: Processes messages, manages tool calls, streams responses
-- **Tools**: Extend `Tool` base class with JSON Schema validation
+**Channels**: Discord, Telegram, WhatsApp, Slack, Feishu  
+**Providers**: Anthropic, OpenAI, OpenRouter, Together, Groq, Gemini, Zhipu, vLLM  
+**Config**: `~/.icron/config.json`
 
 ## Key Directories
 
 ```
 icron/
-Ôö£ÔöÇÔöÇ agent/          # Core agent loop, context assembly, tool execution
-Ôö£ÔöÇÔöÇ channels/       # Telegram, WhatsApp, Feishu implementations
-Ôö£ÔöÇÔöÇ bus/            # Message bus (async queue-based)
-Ôö£ÔöÇÔöÇ config/         # Pydantic config schema and loading
-Ôö£ÔöÇÔöÇ llm/            # LiteLLM provider wrapper
-Ôö£ÔöÇÔöÇ session/        # JSONL-based conversation storage
-ÔööÔöÇÔöÇ cli/            # Typer CLI commands
-bridge/             # Node.js WhatsApp Web.js bridge
-tests/              # pytest test suite
+â”œâ”€â”€ agent/          # Core agent loop, tools, context
+â”œâ”€â”€ channels/       # Discord, Telegram, WhatsApp, Slack, Feishu
+â”œâ”€â”€ bus/            # Async message bus
+â”œâ”€â”€ config/         # Pydantic config schema
+â”œâ”€â”€ cron/           # Scheduled jobs service
+â”œâ”€â”€ mcp/            # Model Context Protocol client
+â”œâ”€â”€ session/        # JSONL conversation storage
+â”œâ”€â”€ cli/            # Typer CLI commands
+ui/                 # Svelte web settings UI
+bridge/             # Node.js WhatsApp bridge
 ```
 
-## Tech Stack
+## Built-in Tools
 
-- Python 3.11+ with Hatchling build system
-- Node.js 20+ for WhatsApp bridge only
-- LiteLLM for LLM integration (100+ models)
-- Pydantic for configuration validation
-- Typer for CLI
-- Config location: `~/.icron/config.json`
+| Category | Tools |
+|----------|-------|
+| Files | `read_file`, `write_file`, `edit_file`, `list_dir`, `rename_file`, `move_file`, `copy_file`, `create_dir` |
+| Search | `glob`, `grep` |
+| Web | `web_search` (Brave), `web_fetch` |
+| Shell | `exec` |
+| Memory | `remember`, `recall`, `note_today` |
+| Scheduling | `set_reminder`, `list_reminders`, `cancel_reminder`, `cron` |
+| Communication | `message`, `spawn` |
 
-## Commands You Should Run
+## Commands
 
 ```bash
-# Testing
-pytest                          # Run all tests
-pytest tests/test_agent.py      # Run specific test file
-
-# Linting & Formatting
-ruff check icron/             # Check linting
-ruff format icron/            # Format code
-
-# Full verification - run after any code changes
-pytest && ruff check icron/ && ruff format --check icron/
-
-# WhatsApp Bridge
-cd bridge && npm run build && npm start
+icron onboard            # Initialize config + workspace
+icron gateway            # Start full server (web UI at :18790)
+icron agent -m "..."     # Direct chat + REPL mode
+icron cron list          # Manage scheduled jobs
+icron status             # Show configuration
 ```
 
-## Key Files
+## Code Patterns
 
-| File | Purpose |
-|------|---------|
-| `icron/agent/loop.py` | Core agent processing loop |
-| `icron/agent/context.py` | System prompt assembly |
-| `icron/agent/tools/base.py` | Tool interface (`Tool` ABC) |
-| `icron/channels/base.py` | Channel interface (`BaseChannel` ABC) |
-| `icron/config/schema.py` | Pydantic config models |
-| `icron/bus/queue.py` | Message bus implementation |
-| `icron/llm/provider.py` | LiteLLM wrapper |
+### Tool Implementation
 
-## Code Patterns You Must Follow
+```python
+class MyTool(Tool):
+    def __init__(self, workspace: Path | None = None):
+        self.workspace = workspace
+
+    @property
+    def name(self) -> str:
+        return "my_tool"
+    
+    @property
+    def description(self) -> str:
+        return "Does something useful"
+    
+    @property
+    def parameters(self) -> dict[str, Any]:
+        return {"type": "object", "properties": {...}}
+
+    async def execute(self, **kwargs: Any) -> str:
+        try:
+            return "result"
+        except Exception as e:
+            return f"Error: {e}"  # Return errors, don't raise
+```
 
 ### Async-First
-Everything is async. Use `async def` and `await` consistently:
+
 ```python
 async def process_message(self, message: Message) -> AsyncIterator[str]:
     async for chunk in self.llm.stream(messages):
         yield chunk
 ```
 
-### Abstract Base Classes
-Extend `BaseChannel` for new channels, `Tool` for new tools:
-```python
-class MyTool(Tool):
-    name = "my_tool"
-    description = "Does something useful"
+## Conventions
 
-    def get_parameters(self) -> dict:
-        return {"type": "object", "properties": {...}}
-
-    async def execute(self, **kwargs) -> str:
-        return "result"
-```
-
-### Error Handling in Tools
-Return error strings. Do not raise exceptions:
-```python
-async def execute(self, **kwargs) -> str:
-    try:
-        result = await do_work()
-        return result
-    except SomeError as e:
-        return f"Error: {e}"
-```
-
-### Type Hints
-Use Python 3.11+ union syntax. Do not use `Optional`:
-```python
-def process(self, data: str | None = None) -> dict[str, Any]:
-    ...
-```
-
-## Rules You Must Follow
-
-- **Line length**: 100 characters max
-- **Logging**: Use loguru. No emojis in debug messages.
+- **Type hints**: Use `X | None` not `Optional[X]`
+- **Line length**: 100 chars max
 - **File I/O**: Always use `encoding="utf-8"`
-- **Single implementation**: When refactoring, remove legacy code completely. Do not leave alternatives.
-- **Type hints**: Required on all function signatures
-- **Imports**: Use absolute imports from `icron.` package
-- **Verification**: Run `pytest && ruff check icron/` after any code change
+- **Logging**: Use loguru, no emojis in debug
+- **Error handling**: Tools return error strings, don't raise exceptions
+- **Imports**: Absolute imports from `icron.`
 
-## Workflow
+## Verification
 
-1. **Use git worktrees**: Always work in a git worktree to enable parallel work with other agents. Create a worktree before starting any implementation:
-   ```bash
-   git worktree add ../icron-feature-name feature-branch-name
-   cd ../icron-feature-name
-   ```
-   This prevents conflicts when multiple agents work on the codebase simultaneously.
-2. **Clarify first**: Question the user on all ambiguities before implementing
-3. **Plan complex tasks**: Use Plan mode to explore the codebase before proposing changes
-4. **Verify changes**: Run tests and linting after every modification
-5. **Prove correctness**: Demonstrate that changes work with tests or examples
-6. **Use subagents**: For multi-file exploration or complex refactoring
-
-## Mistakes to Avoid
-
-- Forgetting `encoding="utf-8"` on file operations
-- Using `Optional[X]` instead of `X | None`
-- Raising exceptions in tool `execute()` methods instead of returning error strings
-- Leaving emoji in debug/log messages
-- Implementing features without clarifying requirements first
-- Assuming user intent instead of asking
+```bash
+pytest && ruff check icron/ && ruff format --check icron/
+```
