@@ -67,8 +67,9 @@ class AgentLoop:
         exec_config: "ExecToolConfig | None" = None,
         mcp_servers: dict[str, dict[str, Any]] | None = None,
         cron_service: "CronService | None" = None,
+        config: "Config | None" = None,
     ):
-        from icron.config.schema import ExecToolConfig
+        from icron.config.schema import ExecToolConfig, Config
         self.bus = bus
         self.provider = provider
         self.workspace = workspace
@@ -78,6 +79,7 @@ class AgentLoop:
         self.exec_config = exec_config or ExecToolConfig()
         self.mcp_servers = mcp_servers or {}
         self.cron_service = cron_service
+        self.config = config  # Full config for collaboration
         
         self.context = ContextBuilder(workspace)
         self.sessions = SessionManager(workspace)
@@ -423,6 +425,10 @@ class AgentLoop:
         
         logger.info(f"Processing message from {msg.channel}:{msg.sender_id}")
 
+        # Handle /collab command - multi-model collaboration
+        if msg.content.strip().lower().startswith("/collab"):
+            return await self._handle_collab(msg)
+
         # Handle slash commands
         if self.commands.is_command(msg.content):
             response, handled = await self.commands.handle(
@@ -665,6 +671,92 @@ class AgentLoop:
             channel=origin_channel,
             chat_id=origin_chat_id,
             content=final_content
+        )
+
+    async def _handle_collab(self, msg: InboundMessage) -> OutboundMessage:
+        """
+        Handle /collab command - multi-model collaboration.
+        
+        Uses all configured LLM providers to discuss and solve a task together
+        through structured phases: analysis, critique, and synthesis.
+        """
+        from icron.agent.collaborate import CollaborationService
+        
+        # Extract task from command
+        content = msg.content.strip()
+        if content.lower() == "/collab":
+            return OutboundMessage(
+                channel=msg.channel,
+                chat_id=msg.chat_id,
+                content="**Multi-Model Collaboration**\n\n"
+                        "Usage: `/collab <task>`\n\n"
+                        "Example: `/collab Design a REST API authentication system`\n\n"
+                        "This will have all your configured AI providers collaborate on the task."
+            )
+        
+        # Get task (everything after /collab)
+        task = content[7:].strip()  # Remove "/collab " prefix
+        
+        if not self.config:
+            return OutboundMessage(
+                channel=msg.channel,
+                chat_id=msg.chat_id,
+                content="❌ Collaboration requires config. This is a bug - please report it."
+            )
+        
+        # Create collaboration service
+        collab_service = CollaborationService(self.config)
+        provider_count = collab_service.get_provider_count()
+        
+        if provider_count < 2:
+            providers = collab_service.get_configured_providers()
+            provider_names = [p.name for p in providers] if providers else ["none"]
+            return OutboundMessage(
+                channel=msg.channel,
+                chat_id=msg.chat_id,
+                content=f"❌ **Not Enough Providers**\n\n"
+                        f"Multi-model collaboration requires at least 2 configured providers.\n\n"
+                        f"Currently configured: {', '.join(provider_names)}\n\n"
+                        f"Add more API keys in your config to enable collaboration."
+            )
+        
+        # Send initial message
+        providers = collab_service.get_configured_providers()
+        provider_list = ", ".join([f"{p.emoji} {p.name}" for p in providers])
+        
+        await self.bus.publish_outbound(OutboundMessage(
+            channel=msg.channel,
+            chat_id=msg.chat_id,
+            content=f"🤝 **Starting Multi-Model Collaboration**\n\n"
+                    f"**Task:** {task}\n\n"
+                    f"**Participants:** {provider_list}\n\n"
+                    f"*Phase 1: Independent Analysis...*"
+        ))
+        
+        # Callback for progress updates
+        async def progress_callback(provider_name: str, phase: str, content: str) -> None:
+            await self.bus.publish_outbound(OutboundMessage(
+                channel=msg.channel,
+                chat_id=msg.chat_id,
+                content=content
+            ))
+        
+        # Run collaboration
+        result = await collab_service.collaborate(task, callback=progress_callback)
+        
+        if not result.success:
+            return OutboundMessage(
+                channel=msg.channel,
+                chat_id=msg.chat_id,
+                content=f"❌ **Collaboration Failed**\n\n{result.error}"
+            )
+        
+        # Return final synthesis (already sent via callback, but return for session logging)
+        return OutboundMessage(
+            channel=msg.channel,
+            chat_id=msg.chat_id,
+            content=f"✅ **Collaboration Complete**\n\n"
+                    f"Models used: {', '.join(result.providers_used)}"
         )
 
     async def process_direct(self, content: str, session_key: str = "cli:direct") -> str:

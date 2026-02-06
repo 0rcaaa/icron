@@ -1267,6 +1267,7 @@ def gateway(
         exec_config=config.tools.exec,
         mcp_servers=config.get_mcp_servers(),
         cron_service=cron,
+        config=config,
     )
     
     # Set cron callback (needs agent)
@@ -1391,6 +1392,7 @@ def agent(
         brave_api_key=config.tools.web.search.api_key or None,
         exec_config=config.tools.exec,
         mcp_servers=config.get_mcp_servers(),
+        config=config,
     )
     
     if message:

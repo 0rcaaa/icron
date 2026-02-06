@@ -112,6 +112,24 @@ Usage:
 
 The agent will search and summarize results for you.""",
 
+    "collab": """**Multi-Model Collaboration**
+
+Have multiple AI providers collaborate to solve a task together.
+
+Usage:
+• `/collab Design a REST API authentication system`
+• `/collab What's the best architecture for a chat app?`
+
+**Requirements:**
+At least 2 providers must be configured with API keys (e.g., Anthropic + OpenAI).
+
+**How It Works:**
+1. **Phase 1 - Analysis**: Each model analyzes the task independently
+2. **Phase 2 - Critique**: Models review each other's proposals
+3. **Phase 3 - Synthesis**: Best model creates final answer
+
+This produces better results than any single model by combining their strengths.""",
+
     "commands": """**All Commands**
 
 Session Management:
@@ -128,6 +146,7 @@ Quick Actions:
 • `/weather [location]` - Get weather
 • `/skills` - List available skills
 • `/skills run [name]` - Run a skill
+• `/collab [task]` - Multi-model collaboration
 
 Help:
 • `/help` - Show all commands
@@ -334,10 +353,12 @@ class CommandHandler:
 • `/memory` - Show memory information
 • `/weather [location]` - Get current weather
 • `/skills` - List available skills
-• `/skills run [name]` - Execute a skill• `/templates` - List message templates
+• `/skills run [name]` - Execute a skill
+• `/collab [task]` - Multi-model collaboration
+• `/templates` - List message templates
 • `/template [name]` - Run a template
 **Help**
-• `/help [topic]` - Detailed help for: sessions, memory, reminders, search, skills, weather, commands
+• `/help [topic]` - Detailed help for: sessions, memory, reminders, search, skills, weather, collab, commands
 
 💡 Tip: You can also just chat naturally - I'll understand!
 
