@@ -1,26 +1,26 @@
 <div align="center">
-  <img src="icron_logo.png" alt="icron" width="500">
+  <img src="nanobot_logo.png" alt="icron" width="500">
   <h1>icron: Ultra-Lightweight Personal AI Assistant</h1>
 </div>
 
-🐈 **icron** is an **ultra-lightweight** personal AI assistant inspired by [Clawdbot](https://github.com/openclaw/openclaw) 
+🐈 **icron** is an **ultra-lightweight** personal AI assistant designed for simplicity and extensibility.
 
-⚡️ Delivers core agent functionality in just **~4,000** lines of code — **99% smaller** than Clawdbot's 430k+ lines.
+⚡️ Delivers core agent functionality in just **~4,000** lines of Python code.
 
 ## 🏗️ Architecture
 
 <p align="center">
-  <img src="icron_arch.png" alt="icron architecture" width="800">
+  <img src="nanobot_arch.png" alt="icron architecture" width="800">
 </p>
 
 ## ✨ Features
 
 <table align="center">
   <tr align="center">
-    <th><p align="center">📈 24/7 Real-Time Market Analysis</p></th>
-    <th><p align="center">🚀 Full-Stack Software Engineer</p></th>
-    <th><p align="center">📅 Smart Daily Routine Manager</p></th>
-    <th><p align="center">📚 Personal Knowledge Assistant</p></th>
+    <th><p align="center">📈 Web Search & Research</p></th>
+    <th><p align="center">🚀 Code Assistant</p></th>
+    <th><p align="center">📅 Reminders & Scheduling</p></th>
+    <th><p align="center">📚 Persistent Memory</p></th>
   </tr>
   <tr>
     <td align="center"><p align="center"><img src="case/search.gif" width="180" height="400"></p></td>
@@ -29,16 +29,29 @@
     <td align="center"><p align="center"><img src="case/memory.gif" width="180" height="400"></p></td>
   </tr>
   <tr>
-    <td align="center">Discovery • Insights • Trends</td>
-    <td align="center">Develop • Deploy • Scale</td>
-    <td align="center">Schedule • Automate • Organize</td>
-    <td align="center">Learn • Memory • Reasoning</td>
+    <td align="center">Search • Fetch • Analyze</td>
+    <td align="center">Read • Write • Execute</td>
+    <td align="center">Reminders • Cron • Tasks</td>
+    <td align="center">Store • Search • Recall</td>
   </tr>
 </table>
 
+### Core Capabilities
+
+| Category | Tools |
+|----------|-------|
+| **File Operations** | `read_file`, `write_file`, `edit_file`, `list_dir`, `rename_file`, `move_file`, `copy_file`, `create_dir` |
+| **Code Search** | `glob` (find files), `grep` (search content) |
+| **Shell Execution** | `exec` (run commands with safety controls) |
+| **Web Access** | `web_search` (Brave API), `web_fetch` (extract content) |
+| **Memory** | `memory_store`, `memory_search`, `memory_list`, `memory_delete` |
+| **Scheduling** | `reminder_set`, `reminder_list`, `reminder_cancel` |
+| **Subagents** | `spawn` (background task delegation) |
+| **MCP** | Connect external MCP servers for unlimited extensibility |
+
 ## 📦 Install
 
-**Install from source** (latest features, recommended for development)
+**From source** (recommended for development)
 
 ```bash
 git clone https://github.com/zebbern/icron.git
@@ -46,24 +59,13 @@ cd icron
 pip install -e .
 ```
 
-**Install with [uv](https://github.com/astral-sh/uv)** (stable, fast)
-
-```bash
-uv tool install icron
-```
-
-**Install from PyPI** (stable)
+**From PyPI** (stable)
 
 ```bash
 pip install icron
 ```
 
 ## 🚀 Quick Start
-
-> [!TIP]
-> Set your API key in `~/.icron/config.json`.
-> Get API keys: [OpenRouter](https://openrouter.ai/keys) or [Together AI](https://api.together.xyz/settings/api-keys) (LLM) · [Brave Search](https://brave.com/search/api/) (optional, for web search)
-> You can also change the model to `minimax/minimax-m2` for lower cost.
 
 **1. Initialize**
 
@@ -82,36 +84,11 @@ icron onboard
   },
   "agents": {
     "defaults": {
-      "model": "anthropic/claude-opus-4-5"
-    }
-  },
-  "tools": {
-    "web": {
-      "search": {
-        "apiKey": "BSA-xxx"
-      }
+      "model": "anthropic/claude-sonnet-4-20250514"
     }
   }
 }
 ```
-
-**Together AI alternative** (`~/.icron/config.json`)
-
-```json
-{
-  "providers": {
-    "together": {
-      "apiKey": "together-xxx"
-    }
-  },
-  "agents": {
-    "defaults": {
-      "model": "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"
-    }
-  }
-}
-```
-
 
 **3. Chat**
 
@@ -119,9 +96,7 @@ icron onboard
 icron agent -m "What is 2+2?"
 ```
 
-That's it! You have a working AI assistant in 2 minutes.
-
-## 🖥️ Local Models (vLLM)
+## �️ Local Models (vLLM)
 
 Run icron with your own local models using vLLM or any OpenAI-compatible server.
 
@@ -155,51 +130,57 @@ vllm serve meta-llama/Llama-3.1-8B-Instruct --port 8000
 icron agent -m "Hello from my local LLM!"
 ```
 
-> [!TIP]
-> The `apiKey` can be any non-empty string for local servers that don't require authentication.
+> The `apiKey` can be any non-empty string for local servers.
 
-## Railway (Docker)
+## �💬 Chat Channels
 
-Railway can build from the included `Dockerfile` and uses `railway.json` to force Docker builds.
+Talk to icron through Telegram, WhatsApp, or Discord.
 
-**Required environment variables**
-- `TOGETHER_API_KEY` (or `TOGETHERAI_API_KEY`)
-- `MODEL` (Together model name, e.g. `meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo`)
-- `icron_WRITE_CONFIG=1`
-
-**Optional environment variables**
-- `OPENROUTER_API_KEY` (if you prefer OpenRouter)
-- `WEBSEARCH_API_KEY` (Brave Search)
-- `TELEGRAM_TOKEN`, `TELEGRAM_ALLOW_FROM` (comma-separated), `TELEGRAM_ENABLED`
-- `WHATSAPP_ENABLED`
-
-Railway injects `PORT`, and the gateway binds to it automatically. Health checks respond on `/health`.
-
-## Web UI (Settings)
-
-The gateway exposes a lightweight web UI for configuring keys and basic settings.
-
-- Open `http://<host>:<port>/` to view and update settings.
-- Advanced GUI (Svelte): build with `cd ui && npm install && npm run build`, then open `http://<host>:<port>/app`.
-- After saving, restart the service to apply changes.
-- If `icron_WRITE_CONFIG=1`, your changes will be overwritten on restart. Set it to `0` after the first save.
-- Disable the UI with `icron_HTTP_ENABLED=0`.
-
-## 💬 Chat Apps
-
-Talk to your icron through Telegram, WhatsApp, or Discord — anytime, anywhere.
-
-| Channel | Setup |
-|---------|-------|
-| **Telegram** | Easy (just a token) |
-| **WhatsApp** | Medium (scan QR) |
-| **Discord** | Easy (just a token) |
+| Channel | Status | Setup |
+|---------|--------|-------|
+| **Discord** | ✅ Full support | Easy (bot token) |
+| **Telegram** | ✅ Full support + voice | Easy (bot token) |
+| **WhatsApp** | ✅ Basic support | Medium (QR scan) |
 
 <details>
-<summary><b>Telegram</b> (Recommended)</summary>
+<summary><b>Discord Setup</b></summary>
+
+**1. Create a Discord bot**
+
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
+2. Create new application, go to **Bot**, copy the token
+3. Enable **Message Content Intent**
+4. Go to **OAuth2 → URL Generator**, select `bot` scope with permissions: Send Messages, Read Messages, Read Message History
+5. Invite bot to your server
+
+**2. Configure**
+
+```json
+{
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "token": "YOUR_BOT_TOKEN",
+      "allowFrom": [YOUR_USER_ID],
+      "allowedChannels": []
+    }
+  }
+}
+```
+
+**3. Run**
+
+```bash
+icron gateway
+```
+
+</details>
+
+<details>
+<summary><b>Telegram Setup</b></summary>
 
 **1. Create a bot**
-- Open Telegram, search `@BotFather`
+- Open Telegram, find `@BotFather`
 - Send `/newbot`, follow prompts
 - Copy the token
 
@@ -225,14 +206,16 @@ Talk to your icron through Telegram, WhatsApp, or Discord — anytime, anywhere.
 icron gateway
 ```
 
+> **Voice transcription**: If you configure a Groq API key, voice messages will be automatically transcribed via Whisper.
+
 </details>
 
 <details>
-<summary><b>WhatsApp</b></summary>
+<summary><b>WhatsApp Setup</b></summary>
 
 Requires **Node.js ≥18**.
 
-**1. Link device**
+**1. Start the bridge**
 
 ```bash
 icron channels login
@@ -255,112 +238,137 @@ icron channels login
 **3. Run** (two terminals)
 
 ```bash
-# Terminal 1
+# Terminal 1 - WhatsApp bridge
 icron channels login
 
-# Terminal 2
+# Terminal 2 - Gateway
 icron gateway
 ```
 
 </details>
 
-<details>
-<summary><b>Discord</b></summary>
+## 🌐 Web UI
 
-**1. Create a Discord Application and Bot**
+The gateway provides a web interface for configuration.
 
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications) and log in
-2. Click **"New Application"** (top-right button)
-3. Enter a name (e.g., "icron") and click **Create**
-4. In the left sidebar, click **"Bot"**
-5. Click **"Reset Token"** (or "Add Bot" if you haven't created one yet)
-6. **Copy the token** — this is your bot token (you won't be able to see it again!)
-   - The token looks like: `XXX11Xx1x11X11x111Xxx.XxXxX.XXXXXXxXxXxXXXXXxXxXXXXXXX`
-   - ⚠️ Keep this secret and never share it publicly
-7. Under **Privileged Gateway Intents**, enable:
-   - ✅ **Message Content Intent** (required to read message content)
-   - ✅ **Server Members Intent** (optional, for user info)
-8. Click **"Save Changes"** at the bottom
+```bash
+icron gateway
+# Open http://localhost:18790/app
+```
 
-**2. Invite bot to your server**
+**Quick Settings UI:**
+- Model selection
+- API keys (Together, OpenRouter, Brave Search)
+- Channel toggles (Telegram, WhatsApp, Discord)
+- Security settings (restrict tools to workspace)
+- Context limits (max tokens for conversation history)
 
-1. In the Developer Portal, go to **OAuth2** → **URL Generator**
-2. Under **Scopes**, select: `bot`
-3. Under **Bot Permissions**, select:
-   - ✅ Send Messages
-   - ✅ Read Messages/View Channels
-   - ✅ Read Message History
-4. Copy the generated URL from the bottom
-5. Open the URL in your browser and select your server to invite the bot
+## 🧠 Memory & Persistence
 
-**3. Configure**
+icron has persistent memory that survives restarts:
 
-Edit `~/.icron/config.json`:
+```
+# Store a fact
+"Remember that my project deadline is January 31st"
+
+# Recall later
+"When is my project deadline?"
+
+# List all memories
+"What do you remember about me?"
+```
+
+Memory is stored in `~/.icron/memories/` as JSON files.
+
+## ⏰ Reminders & Scheduling
+
+**Set reminders naturally:**
+
+```
+"Remind me in 30 minutes to take a break"
+"Remind me at 2pm to call John"
+"Remind me tomorrow at 9am about the meeting"
+```
+
+**Cron jobs for recurring tasks:**
+
+```bash
+# Add a daily reminder
+icron cron add --name "morning" --message "Good morning!" --cron "0 9 * * *"
+
+# Add a one-time reminder
+icron cron add --name "meeting" --message "Meeting starts!" --at "2025-01-31T15:00:00"
+
+# List and manage jobs
+icron cron list
+icron cron remove <job_id>
+```
+
+## 🔧 MCP Server Support
+
+icron can connect to external [MCP servers](https://modelcontextprotocol.io/) for extended functionality.
+
+**Configure MCP servers:**
 
 ```json
 {
-  "channels": {
-    "discord": {
+  "tools": {
+    "mcp": {
       "enabled": true,
-      "token": "YOUR_BOT_TOKEN_HERE",
-      "allow_from": [YOUR_USER_ID_HERE],
-      "allowed_channels": []
+      "servers": {
+        "calculator": {
+          "transport": "stdio",
+          "command": "python",
+          "args": ["/path/to/mcp_server.py"]
+        }
+      }
     }
   }
 }
 ```
 
-> **Configuration Options:**
-> - `token`: Your Discord bot token (required)
-> - `allow_from`: List of user IDs allowed to interact with the bot (use integers, not strings)
-> - `allowed_channels`: List of channel IDs where bot will respond (empty = all channels)
->
-> **Get your Discord User ID:**
-> 1. Enable Developer Mode: Discord → User Settings → Advanced → toggle Developer Mode
-> 2. Right-click your name in any server
-> 3. Select "Copy User ID"
->
-> **Get a Channel ID:**
-> 1. Right-click the channel name
-> 2. Select "Copy Channel ID"
->
-> **Tips:**
-> - Leave `allow_from` as `[]` to allow all users (not recommended for production)
-> - Leave `allowed_channels` as `[]` to respond in all channels
-> - Use `allowed_channels` to restrict the bot to specific channels
->
-> **Image Support:**
-> - ✅ **Receiving images**: Bot downloads attachments to `~/.icron/media/`
-> - ✅ **Vision/analysis**: Claude can analyze images sent to the bot
-> - ✅ **Sending images**: Agent can send images via tool results
+MCP servers appear as additional tools the agent can use.
 
-**4. Run**
+## 🔒 Security
 
-```bash
-icron gateway
+**Workspace restriction:**
+
+```json
+{
+  "tools": {
+    "exec": {
+      "restrictToWorkspace": true
+    }
+  }
+}
 ```
 
-Your bot is now ready! Send it a message in any server it's invited to, or DM it directly.
+When enabled, file operations are limited to `~/.icron/workspace/`.
 
-</details>
+**Built-in safety:**
+- Dangerous shell commands are blocked (rm -rf, format, dd, etc.)
+- Command execution has configurable timeout (default 60s)
+- Output is truncated to prevent context overflow
 
-## ⚙️ Configuration
+## ⚙️ Configuration Reference
 
 Config file: `~/.icron/config.json`
 
-### Providers
-
-> [!NOTE]
-> Groq provides free voice transcription via Whisper. If configured, Telegram voice messages will be automatically transcribed.
-
-| Provider | Purpose | Get API Key |
-|----------|---------|-------------|
-| `openrouter` | LLM (recommended, access to all models) | [openrouter.ai](https://openrouter.ai) |
-| `anthropic` | LLM (Claude direct) | [console.anthropic.com](https://console.anthropic.com) |
-| `openai` | LLM (GPT direct) | [platform.openai.com](https://platform.openai.com) |
-| `groq` | LLM + **Voice transcription** (Whisper) | [console.groq.com](https://console.groq.com) |
-| `gemini` | LLM (Gemini direct) | [aistudio.google.com](https://aistudio.google.com) |
-
+| Section | Key | Description |
+|---------|-----|-------------|
+| `agents.defaults.model` | string | Default LLM model |
+| `providers.openrouter.apiKey` | string | OpenRouter API key |
+| `providers.anthropic.apiKey` | string | Anthropic API key |
+| `providers.together.apiKey` | string | Together AI API key |
+| `providers.groq.apiKey` | string | Groq API key (for voice) |
+| `tools.exec.timeout` | int | Shell command timeout (seconds) |
+| `tools.exec.restrictToWorkspace` | bool | Limit file access to workspace |
+| `tools.exec.maxContextTokens` | int | Max tokens for conversation history |
+| `tools.web.search.apiKey` | string | Brave Search API key |
+| `tools.mcp.enabled` | bool | Enable MCP servers |
+| `channels.discord.enabled` | bool | Enable Discord |
+| `channels.telegram.enabled` | bool | Enable Telegram |
+| `channels.whatsapp.enabled` | bool | Enable WhatsApp |
 
 <details>
 <summary><b>Full config example</b></summary>
@@ -369,7 +377,8 @@ Config file: `~/.icron/config.json`
 {
   "agents": {
     "defaults": {
-      "model": "anthropic/claude-opus-4-5"
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "maxToolIterations": 20
     }
   },
   "providers": {
@@ -381,20 +390,36 @@ Config file: `~/.icron/config.json`
     }
   },
   "channels": {
-    "telegram": {
+    "discord": {
       "enabled": true,
+      "token": "xxx",
+      "allowFrom": [123456789],
+      "allowedChannels": []
+    },
+    "telegram": {
+      "enabled": false,
       "token": "123456:ABC...",
       "allowFrom": ["123456789"]
     },
     "whatsapp": {
-      "enabled": false
+      "enabled": false,
+      "allowFrom": ["+1234567890"]
     }
   },
   "tools": {
+    "exec": {
+      "timeout": 60,
+      "restrictToWorkspace": false,
+      "maxContextTokens": 100000
+    },
     "web": {
       "search": {
         "apiKey": "BSA..."
       }
+    },
+    "mcp": {
+      "enabled": false,
+      "servers": {}
     }
   }
 }
@@ -402,120 +427,94 @@ Config file: `~/.icron/config.json`
 
 </details>
 
-## CLI Reference
+## 🖥️ CLI Reference
 
 | Command | Description |
 |---------|-------------|
 | `icron onboard` | Initialize config & workspace |
-| `icron agent -m "..."` | Chat with the agent |
+| `icron agent -m "..."` | Send a message |
 | `icron agent` | Interactive chat mode |
-| `icron gateway` | Start the gateway (connects to Telegram/WhatsApp/Discord) |
+| `icron gateway` | Start gateway (web UI + channels) |
 | `icron status` | Show status |
-| `icron channels login` | Link WhatsApp (scan QR) |
+| `icron channels login` | Link WhatsApp (QR scan) |
 | `icron channels status` | Show channel status |
-
-<details>
-<summary><b>Scheduled Tasks (Cron)</b></summary>
-
-```bash
-# Add a job
-icron cron add --name "daily" --message "Good morning!" --cron "0 9 * * *"
-icron cron add --name "hourly" --message "Check status" --every 3600
-
-# List jobs
-icron cron list
-
-# Remove a job
-icron cron remove <job_id>
-```
-
-</details>
+| `icron cron list` | List scheduled jobs |
+| `icron cron add` | Add a scheduled job |
+| `icron cron remove <id>` | Remove a scheduled job |
 
 ## 🐳 Docker
-
-> [!TIP]
-> The `-v ~/.icron:/root/.icron` flag mounts your local config directory into the container, so your config and workspace persist across container restarts.
-
-Build and run icron in a container:
 
 ```bash
 # Build the image
 docker build -t icron .
 
-# Initialize config (first time only)
+# Initialize config
 docker run -v ~/.icron:/root/.icron --rm icron onboard
 
-# Edit config on host to add API keys
+# Edit config
 vim ~/.icron/config.json
 
-# Run gateway (connects to Telegram/WhatsApp/Discord)
+# Run gateway
 docker run -v ~/.icron:/root/.icron -p 18790:18790 icron gateway
-
-# Or run a single command
-docker run -v ~/.icron:/root/.icron --rm icron agent -m "Hello!"
-docker run -v ~/.icron:/root/.icron --rm icron status
 ```
+
+**Railway deployment:**
+- Uses `Dockerfile` and `railway.json`
+- Set environment variables: `TOGETHER_API_KEY`, `MODEL`, `ICRON_WRITE_CONFIG=1`
+- Optional: `TELEGRAM_TOKEN`, `TELEGRAM_ALLOW_FROM`, `WEBSEARCH_API_KEY`
 
 ## 📁 Project Structure
 
 ```
 icron/
-├── agent/          # 🧠 Core agent logic
-│   ├── loop.py     #    Agent loop (LLM ↔ tool execution)
-│   ├── context.py  #    Prompt builder
-│   ├── memory.py   #    Persistent memory
-│   ├── skills.py   #    Skills loader
-│   ├── subagent.py #    Background task execution
-│   └── tools/      #    Built-in tools (incl. spawn)
-├── skills/         # 🎯 Bundled skills (github, weather, tmux...)
-├── channels/       # 📱 WhatsApp integration
-├── bus/            # 🚌 Message routing
-├── cron/           # ⏰ Scheduled tasks
-├── heartbeat/      # 💓 Proactive wake-up
-├── providers/      # 🤖 LLM providers (OpenRouter, etc.)
-├── session/        # 💬 Conversation sessions
-├── config/         # ⚙️ Configuration
-└── cli/            # 🖥️ Commands
+├── agent/          # Core agent logic
+│   ├── loop.py     # Agent loop (LLM ↔ tools)
+│   ├── context.py  # Prompt builder
+│   ├── memory.py   # Persistent memory
+│   ├── subagent.py # Background task execution
+│   └── tools/      # Built-in tools
+├── channels/       # Discord, Telegram, WhatsApp
+├── bus/            # Message routing
+├── cron/           # Scheduled tasks
+├── heartbeat/      # Proactive checks
+├── providers/      # LLM providers
+├── session/        # Conversation sessions
+├── mcp/            # MCP server integration
+├── config/         # Configuration
+└── cli/            # CLI commands
 ```
 
-## 🤝 Contribute & Roadmap
+## 📚 Documentation (DRY)
 
-PRs welcome! The codebase is intentionally small and readable. 🤗
+Keep documentation in `/docs` for reusability:
 
-**Roadmap** — Pick an item and [open a PR](https://github.com/zebbern/icron/pulls)!
+| File | Purpose |
+|------|---------|
+| `architecture.md` | System overview, components, data flow |
+| `decisions.md` | Why things were built this way |
+| `conventions.md` | Naming, formatting, repo rules |
+| `workflows.md` | How things are built, tested, deployed |
+| `integrations.md` | APIs, services, auth, rate limits |
+| `glossary.md` | Domain terms and meanings |
 
-- [x] **Voice Transcription** — Support for Groq Whisper (Issue #13)
-- [ ] **Multi-modal** — See and hear (images, voice, video)
-- [ ] **Long-term memory** — Never forget important context
-- [ ] **Better reasoning** — Multi-step planning and reflection
-- [ ] **More integrations** — Discord, Slack, email, calendar
-- [ ] **Self-improvement** — Learn from feedback and mistakes
+> **Rule of thumb:** If you explain it twice, document it once.
 
-### Contributors
+## 🤝 Contribute
 
-<a href="https://github.com/zebbern/icron/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=zebbern/icron" />
-</a>
+PRs welcome! The codebase is intentionally small and readable.
 
-
-## ⭐ Star History
-
-<div align="center">
-  <a href="https://star-history.com/#zebbern/icron&Date">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=zebbern/icron&type=Date&theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=zebbern/icron&type=Date" />
-      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=zebbern/icron&type=Date" style="border-radius: 15px; box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);" />
-    </picture>
-  </a>
-</div>
-
-<p align="center">
-  <em> Thanks for visiting ✨ icron!</em><br><br>
-  <img src="https://visitor-badge.laobi.icu/badge?page_id=zebbern.icron&style=for-the-badge&color=00d4ff" alt="Views">
-</p>
-
+**Roadmap:**
+- [x] Discord integration
+- [x] Voice transcription (Telegram/Groq)
+- [x] Persistent memory
+- [x] MCP server support
+- [x] Scheduled reminders
+- [x] Context trimming
+- [ ] WhatsApp voice transcription
+- [ ] Multi-modal (images, voice)
+- [ ] Email integration
+- [ ] Calendar integration
 
 <p align="center">
-  <sub>icron is for educational, research, and technical exchange purposes only</sub>
+  <sub>icron is for educational and personal use</sub>
 </p>
