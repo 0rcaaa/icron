@@ -244,16 +244,9 @@ Other AI models will also analyze this task independently. Your response will be
         # Run all providers in parallel for Phase 1
         async def get_response(p: ProviderInstance) -> tuple[str, str]:
             try:
-                if callback:
-                    await callback(p.name, "analysis", f"{p.emoji} **{p.name}** is analyzing...")
-                
                 messages = [{"role": "user", "content": prompt}]
                 response = await p.provider.chat(messages, model=p.model)
                 content = response.get("content", "")
-                
-                if callback:
-                    await callback(p.name, "analysis", f"{p.emoji} **{p.name}**:\n{content}")
-                
                 return p.name, content
             except Exception as e:
                 logger.error(f"Phase 1 error for {p.name}: {e}")
@@ -265,7 +258,22 @@ Other AI models will also analyze this task independently. Your response will be
         for name, content in responses:
             results[name] = content
         
+        # Send combined Phase 1 results
+        if callback:
+            combined = "\n\n---\n\n".join([
+                f"{self._get_emoji(name)} **{name}'s Analysis**:\n{content}"
+                for name, content in results.items()
+            ])
+            await callback("", "analysis", f"📊 **Phase 1: Independent Analyses**\n\n{combined}")
+        
         return results
+    
+    def _get_emoji(self, provider_name: str) -> str:
+        """Get emoji for a provider name."""
+        for info in PROVIDER_INFO.values():
+            if info["name"] == provider_name:
+                return info["emoji"]
+        return "🤖"
     
     async def _run_phase2(
         self,
@@ -304,19 +312,12 @@ Now provide your critique of ALL proposals (including your own):
 3. **Improvements**: What specific improvements would you suggest?
 4. **Best elements**: Which ideas from any proposal should definitely be included in the final solution?
 
-Be constructive and specific. Your critique will help create aoptimal final solution."""
+Be constructive and specific. Your critique will help create an optimal final solution."""
 
             try:
-                if callback:
-                    await callback(p.name, "critique", f"{p.emoji} **{p.name}** is reviewing proposals...")
-                
                 messages = [{"role": "user", "content": prompt}]
                 response = await p.provider.chat(messages, model=p.model)
                 content = response.get("content", "")
-                
-                if callback:
-                    await callback(p.name, "critique", f"{p.emoji} **{p.name}**'s critique:\n{content}")
-                
                 return p.name, content
             except Exception as e:
                 logger.error(f"Phase 2 error for {p.name}: {e}")
@@ -327,6 +328,14 @@ Be constructive and specific. Your critique will help create aoptimal final solu
         
         for name, content in responses:
             results[name] = content
+        
+        # Send combined Phase 2 results
+        if callback:
+            combined = "\n\n---\n\n".join([
+                f"{self._get_emoji(name)} **{name}'s Critique**:\n{content}"
+                for name, content in results.items()
+            ])
+            await callback("", "critique", f"🔍 **Phase 2: Peer Critiques**\n\n{combined}")
         
         return results
     
@@ -376,15 +385,12 @@ Now create the FINAL SOLUTION that:
 Your synthesis should be comprehensive and represent the collective intelligence of all participating models. This is the answer that will be delivered to the user."""
 
         try:
-            if callback:
-                await callback(synthesizer.name, "synthesis", f"{synthesizer.emoji} **{synthesizer.name}** is synthesizing final answer...")
-            
             messages = [{"role": "user", "content": prompt}]
             response = await synthesizer.provider.chat(messages, model=synthesizer.model)
             content = response.get("content", "")
             
             if callback:
-                await callback(synthesizer.name, "synthesis", f"✅ **Final Synthesis** (by {synthesizer.name}):\n{content}")
+                await callback(synthesizer.name, "synthesis", f"✅ **Final Synthesis** (by {synthesizer.emoji} {synthesizer.name}):\n\n{content}")
             
             return content
             
