@@ -25,9 +25,10 @@ COPY icron/ icron/
 COPY bridge/ bridge/
 COPY ui/ ui/
 COPY start.sh /app/start.sh
+COPY docker/entrypoint.sh /entrypoint.sh
 RUN uv pip install --system --no-cache .
 
-RUN chmod +x /app/start.sh
+RUN chmod +x /app/start.sh /entrypoint.sh
 
 # Build the WhatsApp bridge
 WORKDIR /app/bridge

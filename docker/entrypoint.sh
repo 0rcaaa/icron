@@ -8,8 +8,8 @@
 
 set -e
 
-# Use icron_WORKSPACE if set, otherwise default to /app/workspace
-WORKSPACE="${icron_WORKSPACE:-/app/workspace}"
+# Use ICRON_WORKSPACE if set, otherwise default to /app/workspace
+WORKSPACE="${ICRON_WORKSPACE:-/app/workspace}"
 RESTART_SIGNAL="$WORKSPACE/.restart_signal"
 
 echo "Starting icron with restart signal support..."
