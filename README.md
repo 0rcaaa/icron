@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="" alt="case/icron.png" width="500">
+  <img src="" alt="https://github.com/zebbern/icron/blob/main/case/icron.png" width="500">
   <h1>icron your lightweight Personal AI Assistant</h1>
 </div>
 
