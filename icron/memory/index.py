@@ -220,7 +220,7 @@ class VectorIndex:
             vec_b: Second vector.
 
         Returns:
-            Cosine similarity score between 0 and 1.
+            Cosine similarity score between -1 and 1.
         """
         if len(vec_a) != len(vec_b):
             raise ValueError(
