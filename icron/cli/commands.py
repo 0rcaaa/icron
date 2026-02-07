@@ -1073,7 +1073,10 @@ def gateway(
     def _update_config_raw(raw_json: str) -> None:
         if not raw_json.strip():
             raise ValueError("config_json is empty")
-        data = json.loads(raw_json)
+        try:
+            data = json.loads(raw_json)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON: {e}") from e
         cfg = Config.model_validate(convert_keys(data))
         save_config(cfg)
         _maybe_restart()
