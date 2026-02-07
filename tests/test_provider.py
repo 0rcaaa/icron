@@ -51,6 +51,7 @@ class TestLazyLLMProvider:
             LazyLLMProvider(type="AUDIO")
 
     def test_multimodal_payload_conversion(self):
+        """Test VLM multimodal message conversion handles system prompts, history, and images."""
         provider = LazyLLMProvider(
             api_key=API_KEY,
             source=SOURCE,
