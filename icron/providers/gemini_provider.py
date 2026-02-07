@@ -134,7 +134,8 @@ class GeminiProvider(LLMProvider):
                 finish_reason="error",
             )
 
-    def _convert_messages_to_gemini(self, messages: list[dict[str, Any]]) -> list[types.Content]:
+    @staticmethod
+    def _convert_messages_to_gemini(messages: list[dict[str, Any]]) -> list[types.Content]:
         """
         Convert OpenAI-style messages to google-genai format.
 

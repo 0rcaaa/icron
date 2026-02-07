@@ -23,12 +23,12 @@ def _is_heartbeat_empty(content: str | None) -> bool:
     if not content:
         return True
     
-    # Lines to skip: empty, headers, HTML comments, empty checkboxes
-    skip_patterns = {"- [ ]", "* [ ]", "- [x]", "* [x]"}
+    # Lines to skip: empty, headers, HTML comments, completed checkboxes
+    skip_prefixes = ("- [x]", "* [x]")
     
     for line in content.split("\n"):
         line = line.strip()
-        if not line or line.startswith("#") or line.startswith("<!--") or line in skip_patterns:
+        if not line or line.startswith("#") or line.startswith("<!--") or line.startswith(skip_prefixes):
             continue
         return False  # Found actionable content
     

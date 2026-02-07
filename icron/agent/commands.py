@@ -434,6 +434,11 @@ class CommandHandler:
             )
 
         parts = args.split(maxsplit=1)
+        if not parts:
+            return (
+                "❓ Please specify a subcommand: `clear`, `new`, `rename`, or `switch`",
+                True
+            )
         subcommand = parts[0].lower()
         subargs = parts[1] if len(parts) > 1 else ""
 
@@ -655,6 +660,8 @@ class CommandHandler:
         """
         if args:
             parts = args.split(maxsplit=1)
+            if not parts:
+                return "\u2753 Try `/skills run [name]` or just `/skills` to list.", True
             subcommand = parts[0].lower()
 
             if subcommand == "run":
@@ -866,6 +873,9 @@ class CommandHandler:
             )
 
         parts = args.split(maxsplit=1)
+        if not parts:
+            available = ", ".join(TEMPLATES.keys())
+            return f"\u2753 Please specify a template: {available}", True
         template_name = parts[0].lower()
         template_args = parts[1] if len(parts) > 1 else ""
 
