@@ -64,6 +64,9 @@ class SlackChannel(BaseChannel):
     async def stop(self) -> None:
         """Stop the Slack client."""
         self._running = False
+        if self._web_client:
+            await self._web_client.close()
+            self._web_client = None
         if self._socket_client:
             try:
                 await self._socket_client.close()
