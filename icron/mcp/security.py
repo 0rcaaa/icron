@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 # Whitelist of safe commands for stdio transport
 SAFE_COMMANDS = frozenset({
     "python", "python3", "py",
-    "node", "nodejs",
+    "node", "nodejs", "npx", "npm",
     "deno", "bun",
     "ruby", "rb",
 })

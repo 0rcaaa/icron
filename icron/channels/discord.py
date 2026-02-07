@@ -66,7 +66,7 @@ class DiscordChannel(BaseChannel):
                 
                 # Check if channel is in allowed_channels list (if configured)
                 if self.config.allowed_channels:
-                    if message.channel.id not in self.config.allowed_channels:
+                    if str(message.channel.id) not in self.config.allowed_channels:
                         return  # Skip messages from non-allowed channels
 
             # Build content

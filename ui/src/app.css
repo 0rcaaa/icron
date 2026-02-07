@@ -204,6 +204,44 @@ body::before {
   gap: 14px;
 }
 
+.provider-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.provider-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.provider-section .field {
+  margin-bottom: 12px;
+}
+
+.provider-section .field:last-child {
+  margin-bottom: 0;
+}
+
+.provider-section .split {
+  margin-bottom: 12px;
+}
+
+.provider-section small {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
 .toggle {
   display: flex;
   align-items: center;

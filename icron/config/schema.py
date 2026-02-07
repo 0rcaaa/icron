@@ -45,8 +45,8 @@ class DiscordConfig(BaseModel):
     """Discord channel configuration."""
     enabled: bool = False
     token: str = ""  # Discord bot token
-    allow_from: list[int] = Field(default_factory=list)  # Allowed user IDs
-    allowed_channels: list[int] = Field(default_factory=list)  # Allowed channel IDs (empty = all channels)
+    allow_from: list[str] = Field(default_factory=list)  # Allowed user IDs (strings to preserve precision)
+    allowed_channels: list[str] = Field(default_factory=list)  # Allowed channel IDs (strings to preserve precision)
 
 
 class FeishuConfig(BaseModel):
@@ -85,6 +85,7 @@ class ProviderConfig(BaseModel):
     """LLM provider configuration."""
     api_key: str = ""
     api_base: str | None = None
+    model: str | None = None
 
 
 class ProvidersConfig(BaseModel):

@@ -1,11 +1,12 @@
 """Multi-model collaboration service for cross-provider discussions.
 
 This module enables multiple LLM providers to collaborate on a task through
-structured discussion phases: independent analysis, peer critique, and synthesis.
+iterative dialogue where models question and build on each other's ideas
+until reaching consensus.
 """
 
 import asyncio
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from loguru import logger
@@ -17,10 +18,10 @@ from icron.providers.anthropic_provider import AnthropicProvider
 from icron.providers.gemini_provider import GeminiProvider
 
 
-# Provider display info
+# Provider display info with default models for each
 PROVIDER_INFO: dict[str, dict[str, str]] = {
     "anthropic": {"name": "Claude", "emoji": "🟣", "model": "claude-sonnet-4-20250514"},
-    "openrouter": {"name": "OpenRouter", "emoji": "🔀", "model": "anthropic/claude-sonnet-4-20250514"},
+    "openrouter": {"name": "DeepSeek R1", "emoji": "🔀", "model": "deepseek/deepseek-r1-0528:free"},
     "openai": {"name": "GPT", "emoji": "🟢", "model": "gpt-4o"},
     "together": {"name": "Together", "emoji": "🔵", "model": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"},
     "groq": {"name": "Groq", "emoji": "⚡", "model": "llama-3.3-70b-versatile"},
@@ -28,16 +29,20 @@ PROVIDER_INFO: dict[str, dict[str, str]] = {
     "zhipu": {"name": "Zhipu", "emoji": "🇨🇳", "model": "glm-4-flash"},
 }
 
-# Provider priority for synthesis (higher = better)
+# Provider priority (higher = starts first and synthesizes)
 PROVIDER_PRIORITY: dict[str, int] = {
     "anthropic": 100,
-    "openrouter": 90,  # Usually hosts Claude
+    "openrouter": 90,
     "openai": 80,
     "gemini": 70,
     "together": 60,
     "groq": 50,
     "zhipu": 40,
 }
+
+# Consensus marker - models should include this when they agree
+CONSENSUS_MARKER = "[AGREED]"
+MAX_ROUNDS = 5  # Maximum back-and-forth exchanges
 
 
 @dataclass
@@ -51,22 +56,34 @@ class ProviderInstance:
 
 
 @dataclass
+class DialogueExchange:
+    """A single exchange in the dialogue."""
+    speaker: str
+    emoji: str
+    round: int
+    content: str
+    has_consensus: bool = False
+
+
+@dataclass
 class CollaborationResult:
     """Result of a multi-model collaboration."""
     task: str
-    phases: list[dict[str, Any]]
+    dialogue: list[DialogueExchange]
     final_synthesis: str
     providers_used: list[str]
+    rounds_completed: int
+    consensus_reached: bool
     success: bool
     error: str | None = None
 
 
 class CollaborationService:
     """
-    Multi-model collaboration service.
+    Multi-model collaboration service using iterative dialogue.
     
-    Orchestrates structured discussions between multiple LLM providers
-    using a three-phase approach for optimal results.
+    Models take turns questioning and building on each other's ideas
+    until they reach consensus or max rounds.
     """
     
     def __init__(self, config: Config):
@@ -74,18 +91,12 @@ class CollaborationService:
         self._providers: list[ProviderInstance] | None = None
     
     def get_configured_providers(self) -> list[ProviderInstance]:
-        """
-        Get all providers that have valid API keys configured.
-        
-        Returns:
-            List of configured provider instances, sorted by priority.
-        """
+        """Get all providers that have valid API keys configured."""
         if self._providers is not None:
             return self._providers
         
         providers: list[ProviderInstance] = []
         
-        # Check each provider in config
         for provider_name in PROVIDER_INFO.keys():
             provider_config = getattr(self.config.providers, provider_name, None)
             if not provider_config:
@@ -98,22 +109,24 @@ class CollaborationService:
             api_base = getattr(provider_config, "api_base", None)
             info = PROVIDER_INFO[provider_name]
             
+            # Use user's configured model if available
+            user_model = getattr(provider_config, "model", None)
+            model = user_model or info["model"]
+            
             try:
-                # Create provider instance based on type
                 if provider_name == "anthropic":
                     llm = AnthropicProvider(
                         api_key=api_key,
                         api_base=api_base,
-                        default_model=info["model"],
+                        default_model=model,
                     )
                 elif provider_name == "gemini":
                     llm = GeminiProvider(
                         api_key=api_key,
                         api_base=api_base,
-                        default_model=info["model"],
+                        default_model=model,
                     )
                 else:
-                    # OpenAI-compatible providers
                     base_urls = {
                         "openai": "https://api.openai.com/v1",
                         "openrouter": "https://openrouter.ai/api/v1",
@@ -124,25 +137,23 @@ class CollaborationService:
                     llm = OpenAIProvider(
                         api_key=api_key,
                         api_base=api_base or base_urls.get(provider_name),
-                        default_model=info["model"],
+                        default_model=model,
                     )
                 
                 providers.append(ProviderInstance(
                     name=info["name"],
                     emoji=info["emoji"],
                     provider=llm,
-                    model=info["model"],
+                    model=model,
                     priority=PROVIDER_PRIORITY.get(provider_name, 0),
                 ))
-                logger.debug(f"Collaboration: Found configured provider {info['name']}")
+                logger.debug(f"Collaboration: Found provider {info['name']} with model {model}")
                 
             except Exception as e:
-                logger.warning(f"Failed to initialize {provider_name} for collaboration: {e}")
+                logger.warning(f"Failed to initialize {provider_name}: {e}")
         
-        # Sort by priority (highest first)
         providers.sort(key=lambda p: p.priority, reverse=True)
         self._providers = providers
-        
         return providers
     
     def get_provider_count(self) -> int:
@@ -155,51 +166,133 @@ class CollaborationService:
         callback: callable = None,
     ) -> CollaborationResult:
         """
-        Run a multi-model collaboration on a task.
+        Run a multi-model collaboration using iterative dialogue.
+        
+        Models take turns:
+        1. Model A proposes initial solution
+        2. Model B critiques, questions, and adds ideas  
+        3. Model A addresses feedback and refines
+        4. Model B reviews and adds more thoughts
+        5. Continue until consensus ([AGREED]) or max rounds
+        6. Final synthesis combining best ideas
         
         Args:
             task: The task/question for the models to discuss.
-            callback: Optional async function to call with progress updates.
-                      Signature: async def callback(provider_name: str, phase: str, content: str)
+            callback: Async function for progress updates.
         
         Returns:
-            CollaborationResult with all phases and final synthesis.
+            CollaborationResult with full dialogue and synthesis.
         """
         providers = self.get_configured_providers()
         
         if len(providers) < 2:
             return CollaborationResult(
                 task=task,
-                phases=[],
+                dialogue=[],
                 final_synthesis="",
                 providers_used=[p.name for p in providers],
+                rounds_completed=0,
+                consensus_reached=False,
                 success=False,
-                error=f"Need at least 2 providers configured for collaboration. Found: {len(providers)}",
+                error=f"Need at least 2 providers. Found: {len(providers)}",
             )
         
-        phases: list[dict[str, Any]] = []
+        # Use first two providers (highest priority)
+        model_a = providers[0]
+        model_b = providers[1]
+        
+        dialogue: list[DialogueExchange] = []
+        consensus_reached = False
+        current_round = 1
         
         try:
-            # Phase 1: Independent Analysis
-            # Each model analyzes the task without seeing others' responses
-            phase1_results = await self._run_phase1(task, providers, callback)
-            phases.append({"phase": "analysis", "results": phase1_results})
+            # Round 1: Model A proposes initial solution
+            opening_prompt = self._build_opening_prompt(task)
+            response_a = await self._get_response(model_a, opening_prompt, callback, current_round, "opening")
+            dialogue.append(DialogueExchange(
+                speaker=model_a.name,
+                emoji=model_a.emoji,
+                round=current_round,
+                content=response_a,
+            ))
             
-            # Phase 2: Peer Critique
-            # Each model reviews all Phase 1 responses
-            phase2_results = await self._run_phase2(task, phase1_results, providers, callback)
-            phases.append({"phase": "critique", "results": phase2_results})
+            # Dialogue loop
+            while current_round <= MAX_ROUNDS and not consensus_reached:
+                # Model B responds to Model A
+                prompt_b = self._build_response_prompt(task, dialogue, model_b.name)
+                response_b = await self._get_response(model_b, prompt_b, callback, current_round, "response")
+                
+                has_consensus_b = CONSENSUS_MARKER in response_b
+                dialogue.append(DialogueExchange(
+                    speaker=model_b.name,
+                    emoji=model_b.emoji,
+                    round=current_round,
+                    content=response_b,
+                    has_consensus=has_consensus_b,
+                ))
+                
+                if has_consensus_b:
+                    # Check if Model A also agrees
+                    prompt_final = self._build_consensus_check_prompt(task, dialogue, model_a.name)
+                    response_final = await self._get_response(model_a, prompt_final, callback, current_round, "consensus")
+                    
+                    has_consensus_a = CONSENSUS_MARKER in response_final
+                    dialogue.append(DialogueExchange(
+                        speaker=model_a.name,
+                        emoji=model_a.emoji,
+                        round=current_round,
+                        content=response_final,
+                        has_consensus=has_consensus_a,
+                    ))
+                    
+                    if has_consensus_a:
+                        consensus_reached = True
+                        break
+                
+                current_round += 1
+                
+                if current_round <= MAX_ROUNDS and not consensus_reached:
+                    # Model A responds to Model B
+                    prompt_a = self._build_response_prompt(task, dialogue, model_a.name)
+                    response_a = await self._get_response(model_a, prompt_a, callback, current_round, "response")
+                    
+                    has_consensus_a = CONSENSUS_MARKER in response_a
+                    dialogue.append(DialogueExchange(
+                        speaker=model_a.name,
+                        emoji=model_a.emoji,
+                        round=current_round,
+                        content=response_a,
+                        has_consensus=has_consensus_a,
+                    ))
+                    
+                    if has_consensus_a:
+                        # Check if Model B agrees
+                        prompt_final = self._build_consensus_check_prompt(task, dialogue, model_b.name)
+                        response_final = await self._get_response(model_b, prompt_final, callback, current_round, "consensus")
+                        
+                        has_consensus_b = CONSENSUS_MARKER in response_final
+                        dialogue.append(DialogueExchange(
+                            speaker=model_b.name,
+                            emoji=model_b.emoji,
+                            round=current_round,
+                            content=response_final,
+                            has_consensus=has_consensus_b,
+                        ))
+                        
+                        if has_consensus_b:
+                            consensus_reached = True
+                            break
             
-            # Phase 3: Synthesis
-            # Best model creates final answer incorporating all insights
-            synthesis = await self._run_phase3(task, phase1_results, phase2_results, providers, callback)
-            phases.append({"phase": "synthesis", "result": synthesis})
+            # Final Synthesis
+            synthesis = await self._synthesize(task, dialogue, model_a, callback)
             
             return CollaborationResult(
                 task=task,
-                phases=phases,
+                dialogue=dialogue,
                 final_synthesis=synthesis,
-                providers_used=[p.name for p in providers],
+                providers_used=[model_a.name, model_b.name],
+                rounds_completed=current_round,
+                consensus_reached=consensus_reached,
                 success=True,
             )
             
@@ -207,194 +300,153 @@ class CollaborationService:
             logger.error(f"Collaboration failed: {e}")
             return CollaborationResult(
                 task=task,
-                phases=phases,
+                dialogue=dialogue,
                 final_synthesis="",
-                providers_used=[p.name for p in providers],
+                providers_used=[p.name for p in providers[:2]],
+                rounds_completed=current_round,
+                consensus_reached=False,
                 success=False,
                 error=str(e),
             )
     
-    async def _run_phase1(
-        self,
-        task: str,
-        providers: list[ProviderInstance],
-        callback: callable = None,
-    ) -> dict[str, str]:
-        """
-        Phase 1: Independent Analysis.
-        
-        Each model analyzes the task independently without seeing others' responses.
-        This prevents groupthink and encourages diverse perspectives.
-        """
-        prompt = f"""You are participating in a multi-model collaboration to solve a task.
-This is Phase 1: Independent Analysis.
+    def _build_opening_prompt(self, task: str) -> str:
+        """Build the opening prompt for first model."""
+        return f"""You are collaborating with another AI model to find the best solution to a task.
+You will have a back-and-forth discussion, building on each other's ideas.
 
-TASK: {task}
+**TASK**: {task}
 
-Provide your analysis and proposed solution. Be thorough and specific.
-Consider:
-- Key requirements and constraints
-- Potential approaches and trade-offs
-- Your recommended solution with reasoning
+**YOUR ROLE**: Propose an initial solution. Be thorough but concise.
 
-Other AI models will also analyze this task independently. Your response will be shared with them in the next phase."""
+**DIALOGUE RULES**:
+- Be specific and provide reasoning
+- The other model will critique and add ideas
+- You'll refine based on their feedback
+- When you believe the solution is complete and optimal, include [AGREED] in your response
+- Keep responses focused (max 400 words)
 
-        results: dict[str, str] = {}
+Now provide your initial proposal:"""
+
+    def _build_response_prompt(self, task: str, dialogue: list[DialogueExchange], responder_name: str) -> str:
+        """Build a response prompt that shows the full dialogue history."""
+        history = self._format_dialogue_history(dialogue)
         
-        # Run all providers in parallel for Phase 1
-        async def get_response(p: ProviderInstance) -> tuple[str, str]:
-            try:
-                messages = [{"role": "user", "content": prompt}]
-                response = await p.provider.chat(messages, model=p.model)
-                content = response.get("content", "")
-                return p.name, content
-            except Exception as e:
-                logger.error(f"Phase 1 error for {p.name}: {e}")
-                return p.name, f"[Error: {e}]"
+        return f"""You are collaborating with another AI model to find the best solution to a task.
+
+**TASK**: {task}
+
+**DIALOGUE SO FAR**:
+{history}
+
+**YOUR ROLE** ({responder_name}): 
+Continue the discussion. You should:
+1. **Acknowledge** good points from the previous response
+2. **Question** anything unclear or potentially problematic
+3. **Add** your own ideas or improvements
+4. **Refine** the proposed solution
+
+If you believe the current solution is optimal and complete, include [AGREED] in your response to signal consensus.
+
+Keep your response focused (max 400 words). Be constructive and specific.
+
+Your response:"""
+
+    def _build_consensus_check_prompt(self, task: str, dialogue: list[DialogueExchange], responder_name: str) -> str:
+        """Build a prompt to check if the other model agrees."""
+        history = self._format_dialogue_history(dialogue)
         
-        tasks = [get_response(p) for p in providers]
-        responses = await asyncio.gather(*tasks)
-        
-        for name, content in responses:
-            results[name] = content
-        
-        # Send combined Phase 1 results
-        if callback:
-            combined = "\n\n---\n\n".join([
-                f"{self._get_emoji(name)} **{name}'s Analysis**:\n{content}"
-                for name, content in results.items()
-            ])
-            await callback("", "analysis", f"📊 **Phase 1: Independent Analyses**\n\n{combined}")
-        
-        return results
+        return f"""You are collaborating with another AI model.
+
+**TASK**: {task}
+
+**DIALOGUE SO FAR**:
+{history}
+
+The other model has signaled they're satisfied with the solution ([AGREED]).
+
+**Do you agree the solution is now optimal?**
+- If YES: Say [AGREED] and briefly confirm why the solution is good
+- If NO: Explain what's still missing or needs refinement
+
+Your response (max 200 words):"""
+
+    def _format_dialogue_history(self, dialogue: list[DialogueExchange]) -> str:
+        """Format the dialogue history for prompts."""
+        parts = []
+        for ex in dialogue:
+            marker = " ✓" if ex.has_consensus else ""
+            parts.append(f"**{ex.emoji} {ex.speaker} (Round {ex.round}){marker}**:\n{ex.content}")
+        return "\n\n---\n\n".join(parts)
     
-    def _get_emoji(self, provider_name: str) -> str:
-        """Get emoji for a provider name."""
-        for info in PROVIDER_INFO.values():
-            if info["name"] == provider_name:
-                return info["emoji"]
-        return "🤖"
-    
-    async def _run_phase2(
+    async def _get_response(
         self,
-        task: str,
-        phase1_results: dict[str, str],
-        providers: list[ProviderInstance],
-        callback: callable = None,
-    ) -> dict[str, str]:
-        """
-        Phase 2: Peer Critique.
-        
-        Each model reviews all Phase 1 responses, identifying strengths,
-        weaknesses, and suggesting improvements.
-        """
-        # Build context with all Phase 1 responses
-        proposals = "\n\n".join([
-            f"=== {name}'s Analysis ===\n{content}"
-            for name, content in phase1_results.items()
-        ])
-        
-        results: dict[str, str] = {}
-        
-        async def get_critique(p: ProviderInstance) -> tuple[str, str]:
-            prompt = f"""You are participating in a multi-model collaboration.
-This is Phase 2: Peer Critique.
-
-ORIGINAL TASK: {task}
-
-Here are all the analyses from Phase 1:
-
-{proposals}
-
-Now provide your critique of ALL proposals (including your own):
-1. **Strengths**: What good ideas or approaches do you see?
-2. **Weaknesses**: What gaps, issues, or concerns do you identify?
-3. **Improvements**: What specific improvements would you suggest?
-4. **Best elements**: Which ideas from any proposal should definitely be included in the final solution?
-
-Be constructive and specific. Your critique will help create an optimal final solution."""
-
-            try:
-                messages = [{"role": "user", "content": prompt}]
-                response = await p.provider.chat(messages, model=p.model)
-                content = response.get("content", "")
-                return p.name, content
-            except Exception as e:
-                logger.error(f"Phase 2 error for {p.name}: {e}")
-                return p.name, f"[Error: {e}]"
-        
-        tasks = [get_critique(p) for p in providers]
-        responses = await asyncio.gather(*tasks)
-        
-        for name, content in responses:
-            results[name] = content
-        
-        # Send combined Phase 2 results
-        if callback:
-            combined = "\n\n---\n\n".join([
-                f"{self._get_emoji(name)} **{name}'s Critique**:\n{content}"
-                for name, content in results.items()
-            ])
-            await callback("", "critique", f"🔍 **Phase 2: Peer Critiques**\n\n{combined}")
-        
-        return results
-    
-    async def _run_phase3(
-        self,
-        task: str,
-        phase1_results: dict[str, str],
-        phase2_results: dict[str, str],
-        providers: list[ProviderInstance],
-        callback: callable = None,
+        provider: ProviderInstance,
+        prompt: str,
+        callback: callable,
+        round_num: int,
+        phase: str,
     ) -> str:
-        """
-        Phase 3: Synthesis.
-        
-        The highest-priority model synthesizes all insights into a final answer.
-        """
-        # Use highest priority provider for synthesis
-        synthesizer = providers[0]
-        
-        proposals = "\n\n".join([
-            f"=== {name}'s Analysis ===\n{content}"
-            for name, content in phase1_results.items()
-        ])
-        
-        critiques = "\n\n".join([
-            f"=== {name}'s Critique ===\n{content}"
-            for name, content in phase2_results.items()
-        ])
-        
-        prompt = f"""You are the synthesizer in a multi-model collaboration.
-This is Phase 3: Final Synthesis.
-
-ORIGINAL TASK: {task}
-
-=== PHASE 1: INDEPENDENT ANALYSES ===
-{proposals}
-
-=== PHASE 2: PEER CRITIQUES ===
-{critiques}
-
-Now create the FINAL SOLUTION that:
-1. Incorporates the best ideas from all analyses
-2. Addresses concerns raised in critiques
-3. Provides a complete, actionable answer
-4. Is better than any single proposal alone
-
-Your synthesis should be comprehensive and represent the collective intelligence of all participating models. This is the answer that will be delivered to the user."""
-
+        """Get a response from a provider and send to callback."""
         try:
             messages = [{"role": "user", "content": prompt}]
-            response = await synthesizer.provider.chat(messages, model=synthesizer.model)
-            content = response.get("content", "")
+            response = await provider.provider.chat(messages, model=provider.model)
+            content = response.content or ""
             
+            # Send to callback for display
             if callback:
-                await callback(synthesizer.name, "synthesis", f"✅ **Final Synthesis** (by {synthesizer.emoji} {synthesizer.name}):\n\n{content}")
+                has_agreed = CONSENSUS_MARKER in content
+                marker = " ✅" if has_agreed else ""
+                display = f"{provider.emoji} **{provider.name}** (Round {round_num}){marker}:\n\n{content}"
+                await callback(provider.name, f"round_{round_num}_{phase}", display)
             
             return content
             
         except Exception as e:
-            logger.error(f"Phase 3 synthesis error: {e}")
-            # Fallback: return combined phase 1 results
-            return f"[Synthesis failed: {e}]\n\nBest proposals:\n{proposals}"
+            logger.error(f"Error from {provider.name}: {e}")
+            error_msg = f"[Error: {e}]"
+            if callback:
+                await callback(provider.name, "error", f"{provider.emoji} **{provider.name}**: {error_msg}")
+            return error_msg
+    
+    async def _synthesize(
+        self,
+        task: str,
+        dialogue: list[DialogueExchange],
+        synthesizer: ProviderInstance,
+        callback: callable,
+    ) -> str:
+        """Create final synthesis from the dialogue."""
+        history = self._format_dialogue_history(dialogue)
+        
+        prompt = f"""You participated in a collaborative discussion to solve a task.
+
+**TASK**: {task}
+
+**FULL DIALOGUE**:
+{history}
+
+Now create the **FINAL SOLUTION** that:
+1. Takes the best ideas from the entire discussion
+2. Addresses all concerns that were raised
+3. Is actionable and complete
+4. Represents the collaborative consensus
+
+Provide a clear, well-structured final answer:"""
+
+        try:
+            messages = [{"role": "user", "content": prompt}]
+            response = await synthesizer.provider.chat(messages, model=synthesizer.model)
+            content = response.content or ""
+            
+            if callback:
+                await callback(
+                    synthesizer.name,
+                    "synthesis",
+                    f"✨ **Final Synthesis** (by {synthesizer.emoji} {synthesizer.name}):\n\n{content}"
+                )
+            
+            return content
+            
+        except Exception as e:
+            logger.error(f"Synthesis error: {e}")
+            return f"[Synthesis failed: {e}]"

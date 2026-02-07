@@ -13,10 +13,10 @@ Icron is a Python-based AI agent framework with a modular architecture designed 
 ├─────────────────────────────────────────────────────────────┤
 │  /         - Basic settings UI                               │
 │  /app      - Full Svelte UI                                  │
-│  /exec     - Agent execution endpoint (POST)                 │
-│  /session  - Session management                              │
-│  /memory   - Memory API                                      │
-│  /reminders- Reminder API                                    │
+│  /api/config       - Configuration API (GET/POST)            │
+│  /api/mcp/status   - MCP runtime status (GET)                │
+│  /api/test/*       - Provider/channel test endpoints         │
+│  /health           - Health check endpoint                   │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -48,6 +48,7 @@ Icron is a Python-based AI agent framework with a modular architecture designed 
 │ • Shell tools   │  │ • Token mgmt    │  │ • OpenAI        │
 │ • Memory tools  │  │ • Persistence   │  │ • vLLM          │
 │ • Web tools     │  │                 │  │ • Ollama        │
+│ • MCP tools     │  │                 │  │ • Gemini        │
 │ • Spawn tools   │  │                 │  │ • Gemini        │
 │ • Screenshot    │  │                 │  │                 │
 └─────────────────┘  └─────────────────┘  └─────────────────┘

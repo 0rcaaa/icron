@@ -677,8 +677,8 @@ class AgentLoop:
         """
         Handle /collab command - multi-model collaboration.
         
-        Uses all configured LLM providers to discuss and solve a task together
-        through structured phases: analysis, critique, and synthesis.
+        Uses configured LLM providers to have an iterative dialogue,
+        questioning and building on each other's ideas until consensus.
         """
         from icron.agent.collaborate import CollaborationService
         
@@ -691,7 +691,7 @@ class AgentLoop:
                 content="**Multi-Model Collaboration**\n\n"
                         "Usage: `/collab <task>`\n\n"
                         "Example: `/collab Design a REST API authentication system`\n\n"
-                        "This will have all your configured AI providers collaborate on the task."
+                        "Models will discuss back-and-forth until they agree on the best solution."
             )
         
         # Get task (everything after /collab)
@@ -722,15 +722,15 @@ class AgentLoop:
         
         # Send initial message
         providers = collab_service.get_configured_providers()
-        provider_list = ", ".join([f"{p.emoji} {p.name}" for p in providers])
+        provider_list = ", ".join([f"{p.emoji} {p.name}" for p in providers[:2]])
         
         await self.bus.publish_outbound(OutboundMessage(
             channel=msg.channel,
             chat_id=msg.chat_id,
-            content=f"🤝 **Starting Multi-Model Collaboration**\n\n"
+            content=f"🤝 **Starting Collaborative Dialogue**\n\n"
                     f"**Task:** {task}\n\n"
                     f"**Participants:** {provider_list}\n\n"
-                    f"*Phase 1: Independent Analysis...*"
+                    f"*Models will discuss until reaching consensus...*"
         ))
         
         # Callback for progress updates
@@ -751,12 +751,15 @@ class AgentLoop:
                 content=f"❌ **Collaboration Failed**\n\n{result.error}"
             )
         
-        # Return final synthesis (already sent via callback, but return for session logging)
+        # Return summary
+        consensus_text = "✅ Consensus reached!" if result.consensus_reached else f"⏱️ Max rounds ({result.rounds_completed}) completed"
         return OutboundMessage(
             channel=msg.channel,
             chat_id=msg.chat_id,
-            content=f"✅ **Collaboration Complete**\n\n"
-                    f"Models used: {', '.join(result.providers_used)}"
+            content=f"🏁 **Collaboration Complete**\n\n"
+                    f"**Rounds:** {result.rounds_completed}\n"
+                    f"**Status:** {consensus_text}\n"
+                    f"**Models:** {', '.join(result.providers_used)}"
         )
 
     async def process_direct(self, content: str, session_key: str = "cli:direct") -> str:

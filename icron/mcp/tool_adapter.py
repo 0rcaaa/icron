@@ -1,6 +1,7 @@
 """Adapter to convert MCP tools to icron Tool interface."""
 
 import asyncio
+from pathlib import Path
 from typing import Any
 
 from loguru import logger
@@ -130,8 +131,9 @@ class MCPManager:
         for server_name, config in servers_config.items():
             try:
                 # Use timeout to prevent hanging on slow/unresponsive servers
+                # npm packages may need longer to download and initialize on first run
                 transport_type = config.get("transport", "stdio")
-                timeout_seconds = 30.0 if transport_type == "sse" else 10.0
+                timeout_seconds = 45.0 if transport_type == "sse" else 45.0
 
                 if transport_type == "sse":
                     await asyncio.wait_for(
@@ -168,25 +170,27 @@ class MCPManager:
             logger.warning(f"MCP server '{name}' has no args, skipping")
             return
 
-        script_path = args[0]
-
         # Validate command against whitelist
         is_valid, error_msg = validate_command(command, args)
         if not is_valid:
             logger.error(f"MCP server '{name}' security validation failed: {error_msg}")
             return
 
-        # Validate script path
-        is_valid, error_msg = validate_script_path(script_path)
-        if not is_valid:
-            logger.error(f"MCP server '{name}' path validation failed: {error_msg}")
-            return
+        # For npm/npx commands, skip script path validation - they run packages, not local scripts
+        cmd_base = Path(command).name
+        if cmd_base not in ("npx", "npm"):
+            script_path = args[0]
+            
+            # Validate script path for non-npm commands
+            is_valid, error_msg = validate_script_path(script_path)
+            if not is_valid:
+                logger.error(f"MCP server '{name}' path validation failed: {error_msg}")
+                return
 
-        # Check file exists
-        from pathlib import Path
-        if not Path(script_path).exists():
-            logger.warning(f"MCP server '{name}' script not found: {script_path}")
-            return
+            # Check file exists
+            if not Path(script_path).exists():
+                logger.warning(f"MCP server '{name}' script not found: {script_path}")
+                return
 
         await self._client.connect_stdio(name, command, args, env)
 
@@ -217,6 +221,14 @@ class MCPManager:
             if tool.name == name:
                 return tool
         return None
+
+    def get_status(self) -> dict[str, Any]:
+        """Get MCP status including server connections and tools."""
+        return {
+            "initialized": self._initialized,
+            "totalTools": len(self._tools),
+            "servers": self._client.get_server_status() if self._initialized else [],
+        }
 
     async def close(self) -> None:
         """Close all MCP connections."""

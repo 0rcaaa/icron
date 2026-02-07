@@ -17,7 +17,7 @@ WORKDIR /app
 # Install Python dependencies first (cached layer)
 COPY pyproject.toml README.md LICENSE ./
 RUN mkdir -p icron bridge && touch icron/__init__.py && \
-    uv pip install --system --no-cache . && \
+    uv pip install --system --no-cache ".[mcp]" && \
     rm -rf icron bridge
 
 # Copy the full source and install
@@ -26,7 +26,7 @@ COPY bridge/ bridge/
 COPY ui/ ui/
 COPY start.sh /app/start.sh
 COPY docker/entrypoint.sh /entrypoint.sh
-RUN uv pip install --system --no-cache .
+RUN uv pip install --system --no-cache ".[mcp]"
 
 # Convert line endings (CRLF to LF) and make scripts executable
 RUN sed -i 's/\r$//' /app/start.sh /entrypoint.sh && \

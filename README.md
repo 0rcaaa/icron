@@ -329,9 +329,9 @@ Quick commands that bypass the LLM for instant response:
 
 ## MCP Server Support
 
-icron can connect to external [MCP servers](https://modelcontextprotocol.io/) for extended functionality.
+icron integrates with [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) servers for unlimited extensibility. Connect to file systems, databases, APIs, and more.
 
-**Configure MCP servers:**
+### Quick Setup
 
 ```json
 {
@@ -339,10 +339,15 @@ icron can connect to external [MCP servers](https://modelcontextprotocol.io/) fo
     "mcp": {
       "enabled": true,
       "servers": {
-        "calculator": {
+        "time": {
           "transport": "stdio",
-          "command": "python",
-          "args": ["/path/to/mcp_server.py"]
+          "command": "npx",
+          "args": ["-y", "@guanxiong/mcp-server-time"]
+        },
+        "filesystem": {
+          "transport": "stdio",
+          "command": "npx",
+          "args": ["-y", "@anthropic/mcp-server-filesystem", "/"]
         }
       }
     }
@@ -350,7 +355,73 @@ icron can connect to external [MCP servers](https://modelcontextprotocol.io/) fo
 }
 ```
 
-MCP servers appear as additional tools the agent can use.
+### Popular MCP Servers
+
+| Server | Package | Tools | API Key |
+|--------|---------|-------|---------|
+| **Time** | `@guanxiong/mcp-server-time` | Get time, convert timezones | No |
+| **Filesystem** | `@anthropic/mcp-server-filesystem` | Read/write/search files | No |
+| **Fetch** | `mcp-fetch-server` | HTTP requests, web scraping | No |
+| **Sequential Thinking** | `@modelcontextprotocol/server-sequential-thinking` | Step-by-step reasoning | No |
+| **GitHub** | `@modelcontextprotocol/server-github` | Issues, PRs, repos | `GITHUB_PERSONAL_ACCESS_TOKEN` |
+| **Brave Search** | `@anthropic/mcp-server-brave-search` | Web search | `BRAVE_API_KEY` |
+| **PostgreSQL** | `@anthropic/mcp-server-postgres` | Database queries | Connection string |
+| **Slack** | `@anthropic/mcp-server-slack` | Slack messages | `SLACK_BOT_TOKEN` |
+
+### Server Types
+
+**Standard (stdio) - npm packages:**
+```json
+{
+  "time": {
+    "transport": "stdio",
+    "command": "npx",
+    "args": ["-y", "@guanxiong/mcp-server-time"]
+  }
+}
+```
+
+**Python servers:**
+```json
+{
+  "custom": {
+    "transport": "stdio",
+    "command": "python",
+    "args": ["/path/to/mcp_server.py"]
+  }
+}
+```
+
+**SSE (Server-Sent Events) - remote servers:**
+```json
+{
+  "remote": {
+    "transport": "sse",
+    "url": "https://mcp.example.com/sse"
+  }
+}
+```
+
+### Servers with API Keys
+
+Set environment variables before running icron:
+
+```bash
+export GITHUB_PERSONAL_ACCESS_TOKEN="ghp_xxx"
+export BRAVE_API_KEY="BSA_xxx"
+icron gateway
+```
+
+Or in Docker:
+```bash
+docker run -e GITHUB_PERSONAL_ACCESS_TOKEN="ghp_xxx" ...
+```
+
+### Web UI Configuration
+
+The **Settings → MCP** tab provides 19 pre-configured MCP server presets. Enable servers with one click and they'll be added to your config automatically.
+
+MCP tools appear alongside built-in tools and are available to the agent immediately after configuration.
 
 ## Security
 

@@ -189,6 +189,23 @@ class MCPClient:
                 })
         return all_tools
 
+    def get_server_status(self) -> list[dict[str, Any]]:
+        """
+        Get status of all connected servers.
+
+        Returns:
+            List of server status dicts with name, status, and tool_count
+        """
+        status_list = []
+        for name, conn in self.connections.items():
+            status_list.append({
+                "name": name,
+                "status": "connected",
+                "toolCount": len(conn.tools),
+                "tools": [t["name"] for t in conn.tools],
+            })
+        return status_list
+
     async def call_tool(self, full_name: str, arguments: dict[str, Any]) -> str:
         """
         Call a tool by its full name (server:tool).

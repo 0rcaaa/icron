@@ -469,10 +469,7 @@ def setup(
             config.channels.discord.token = dc_token
             dc_users = Prompt.ask("Allowed user IDs (comma-separated, or empty for all)", default="")
             if dc_users:
-                try:
-                    config.channels.discord.allow_from = [int(u.strip()) for u in dc_users.split(",") if u.strip()]
-                except ValueError:
-                    console.print("[yellow]Invalid user IDs, skipping allow list[/yellow]")
+                config.channels.discord.allow_from = [u.strip() for u in dc_users.split(",") if u.strip()]
             console.print("[green]✓[/green] Discord configured\n")
     
     # Save configuration
@@ -1062,12 +1059,12 @@ def gateway(
 
         discord_allow_from_raw = _get_field(fields, "discord_allow_from")
         cfg.channels.discord.allow_from = [
-            int(item) for item in (x.strip() for x in discord_allow_from_raw.split(",")) if item
+            item for item in (x.strip() for x in discord_allow_from_raw.split(",")) if item
         ]
 
         discord_allowed_channels_raw = _get_field(fields, "discord_allowed_channels")
         cfg.channels.discord.allowed_channels = [
-            int(item) for item in (x.strip() for x in discord_allowed_channels_raw.split(",")) if item
+            item for item in (x.strip() for x in discord_allowed_channels_raw.split(",")) if item
         ]
 
         save_config(cfg)
@@ -1081,10 +1078,138 @@ def gateway(
         save_config(cfg)
         _maybe_restart()
 
+    def _test_provider(data: dict) -> dict:
+        """Test provider API credentials by making a simple request."""
+        import httpx
+        
+        provider = data.get("provider", "")
+        api_key = data.get("api_key", "")
+        api_base = data.get("api_base", "")
+        
+        if not api_key:
+            return {"ok": False, "error": "API key is required"}
+        
+        # Default API bases for different providers
+        default_bases = {
+            "openrouter": "https://openrouter.ai/api/v1",
+            "together": "https://api.together.xyz/v1",
+            "anthropic": "https://api.anthropic.com/v1",
+            "openai": "https://api.openai.com/v1",
+            "gemini": "https://generativelanguage.googleapis.com/v1beta",
+            "groq": "https://api.groq.com/openai/v1",
+        }
+        
+        base_url = api_base or default_bases.get(provider, "")
+        if not base_url:
+            return {"ok": False, "error": f"Unknown provider: {provider}"}
+        
+        try:
+            if provider == "anthropic":
+                # Anthropic uses a different auth header
+                response = httpx.get(
+                    f"{base_url}/models",
+                    headers={
+                        "x-api-key": api_key,
+                        "anthropic-version": "2023-06-01",
+                    },
+                    timeout=10,
+                )
+            elif provider == "gemini":
+                # Gemini uses query param for API key
+                response = httpx.get(
+                    f"{base_url}/models?key={api_key}",
+                    timeout=10,
+                )
+            else:
+                # OpenAI-compatible providers
+                response = httpx.get(
+                    f"{base_url}/models",
+                    headers={"Authorization": f"Bearer {api_key}"},
+                    timeout=10,
+                )
+            
+            if response.status_code in (200, 201):
+                return {"ok": True, "message": "Connection successful"}
+            elif response.status_code == 401:
+                return {"ok": False, "error": "Invalid API key"}
+            elif response.status_code == 403:
+                return {"ok": False, "error": "API key lacks required permissions"}
+            else:
+                return {"ok": False, "error": f"HTTP {response.status_code}: {response.text[:200]}"}
+        except httpx.TimeoutException:
+            return {"ok": False, "error": "Connection timed out"}
+        except httpx.ConnectError as e:
+            return {"ok": False, "error": f"Connection failed: {str(e)}"}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    def _test_channel(data: dict) -> dict:
+        """Test channel connection by verifying credentials."""
+        import httpx
+        
+        channel = data.get("channel", "")
+        token = data.get("token", "")
+        
+        if not token:
+            return {"ok": False, "error": "Token is required"}
+        
+        try:
+            if channel == "discord":
+                # Test Discord bot token
+                response = httpx.get(
+                    "https://discord.com/api/v10/users/@me",
+                    headers={"Authorization": f"Bot {token}"},
+                    timeout=10,
+                )
+                if response.status_code == 200:
+                    user_data = response.json()
+                    return {"ok": True, "message": f"Connected as {user_data.get('username', 'bot')}"}
+                elif response.status_code == 401:
+                    return {"ok": False, "error": "Invalid bot token"}
+                else:
+                    return {"ok": False, "error": f"HTTP {response.status_code}"}
+                    
+            elif channel == "telegram":
+                # Test Telegram bot token
+                response = httpx.get(
+                    f"https://api.telegram.org/bot{token}/getMe",
+                    timeout=10,
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("ok"):
+                        bot_name = data.get("result", {}).get("username", "bot")
+                        return {"ok": True, "message": f"Connected as @{bot_name}"}
+                    else:
+                        return {"ok": False, "error": data.get("description", "Unknown error")}
+                else:
+                    return {"ok": False, "error": f"HTTP {response.status_code}"}
+                    
+            elif channel == "whatsapp":
+                # WhatsApp uses bridge URL, just check if it's reachable
+                bridge_url = data.get("bridge_url", "")
+                if not bridge_url:
+                    return {"ok": False, "error": "Bridge URL is required"}
+                # Just check the URL is valid format
+                return {"ok": True, "message": "Bridge URL configured (connection test requires running bridge)"}
+                
+            else:
+                return {"ok": False, "error": f"Unknown channel: {channel}"}
+                
+        except httpx.TimeoutException:
+            return {"ok": False, "error": "Connection timed out"}
+        except httpx.ConnectError as e:
+            return {"ok": False, "error": f"Connection failed: {str(e)}"}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
     def _get_ui_dist() -> Path | None:
         candidates = [
+            # Development: relative to source code location
             Path(__file__).resolve().parent.parent / "ui" / "dist",
             Path(__file__).resolve().parent.parent.parent / "ui" / "dist",
+            # Docker: fixed app directory
+            Path("/app/ui/dist"),
         ]
         for candidate in candidates:
             if candidate.exists():
@@ -1093,6 +1218,11 @@ def gateway(
 
     ui_dist = _get_ui_dist()
     ui_root = ui_dist.resolve() if ui_dist else None
+    
+    # Shared state for runtime status (populated after agent init)
+    runtime_state = {
+        "mcp": {"initialized": False, "totalTools": 0, "servers": []}
+    }
 
     def start_web_server(host: str, web_port: int) -> ThreadingHTTPServer | None:
         import mimetypes
@@ -1153,6 +1283,9 @@ def gateway(
                 if path in ("/health", "/healthz", "/ready"):
                     self._send_text("ok", 200)
                     return
+                if path == "/api/mcp/status":
+                    self._send_json(json.dumps(runtime_state["mcp"]), 200)
+                    return
                 if path.startswith("/app"):
                     if self._serve_app(path):
                         return
@@ -1162,10 +1295,9 @@ def gateway(
                     self._send_json(payload, 200)
                     return
                 if path in ("/", "/ui"):
-                    query = parse_qs(urlparse(self.path).query)
-                    saved = "saved" in query
-                    error = query.get("error", [None])[0]
-                    self._send_html(_render_settings_page(saved=saved, error=error))
+                    self.send_response(302)
+                    self.send_header("Location", "/app")
+                    self.end_headers()
                     return
                 self._send_text("not found", 404)
 
@@ -1176,6 +1308,24 @@ def gateway(
                         body = self._read_body()
                         _update_config_raw(body)
                         self._send_json('{"ok": true}', 200)
+                    except Exception as exc:
+                        self._send_json(json.dumps({"ok": False, "error": str(exc)}), 400)
+                    return
+                if path == "/api/test/provider":
+                    try:
+                        body = self._read_body()
+                        data = json.loads(body)
+                        result = _test_provider(data)
+                        self._send_json(json.dumps(result), 200)
+                    except Exception as exc:
+                        self._send_json(json.dumps({"ok": False, "error": str(exc)}), 400)
+                    return
+                if path == "/api/test/channel":
+                    try:
+                        body = self._read_body()
+                        data = json.loads(body)
+                        result = _test_channel(data)
+                        self._send_json(json.dumps(result), 200)
                     except Exception as exc:
                         self._send_json(json.dumps({"ok": False, "error": str(exc)}), 400)
                     return
@@ -1335,6 +1485,10 @@ def gateway(
         try:
             # Initialize agent (including MCP)
             await agent.initialize()
+            
+            # Update runtime state with MCP status
+            if agent.mcp_manager:
+                runtime_state["mcp"] = agent.mcp_manager.get_status()
             
             await cron.start()
             await heartbeat.start()
