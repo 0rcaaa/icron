@@ -4,7 +4,6 @@ import asyncio
 import logging
 from typing import Any
 
-import anthropic
 from anthropic import AsyncAnthropic, APITimeoutError, APIError, RateLimitError, AuthenticationError
 
 from icron.providers.base import LLMProvider, LLMResponse, ToolCallRequest
