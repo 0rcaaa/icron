@@ -779,8 +779,10 @@
       });
       const data = await res.json();
       testStates[provider] = { testing: false, result: data };
+      clearTestResult(provider);
     } catch (err) {
       testStates[provider] = { testing: false, result: { ok: false, error: err.message } };
+      clearTestResult(provider);
     }
     testStates = testStates;
   };
@@ -832,8 +834,10 @@
       });
       const data = await res.json();
       testStates.default = { testing: false, result: data };
+      clearTestResult('default');
     } catch (err) {
       testStates.default = { testing: false, result: { ok: false, error: err.message } };
+      clearTestResult('default');
     }
     testStates = testStates;
   };
@@ -851,8 +855,10 @@
       });
       const data = await res.json();
       testStates[channel] = { testing: false, result: data };
+      clearTestResult(channel);
     } catch (err) {
       testStates[channel] = { testing: false, result: { ok: false, error: err.message } };
+      clearTestResult(channel);
     }
     testStates = testStates;
   };
