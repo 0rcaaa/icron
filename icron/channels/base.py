@@ -19,7 +19,7 @@ class BaseChannel(ABC):
     
     name: str = "base"
     
-    def __init__(self, config: Any, bus: MessageBus):
+    def __init__(self, config: Any, bus: MessageBus) -> None:
         """
         Initialize the channel.
         

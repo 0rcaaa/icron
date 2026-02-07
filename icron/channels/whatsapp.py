@@ -22,7 +22,7 @@ class WhatsAppChannel(BaseChannel):
     
     name = "whatsapp"
     
-    def __init__(self, config: WhatsAppConfig, bus: MessageBus):
+    def __init__(self, config: WhatsAppConfig, bus: MessageBus) -> None:
         super().__init__(config, bus)
         self.config: WhatsAppConfig = config
         self._ws = None

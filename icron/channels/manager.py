@@ -21,7 +21,7 @@ class ChannelManager:
     - Route outbound messages
     """
     
-    def __init__(self, config: Config, bus: MessageBus):
+    def __init__(self, config: Config, bus: MessageBus) -> None:
         self.config = config
         self.bus = bus
         self.channels: dict[str, BaseChannel] = {}

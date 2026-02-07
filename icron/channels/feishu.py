@@ -52,7 +52,7 @@ class FeishuChannel(BaseChannel):
     
     name = "feishu"
     
-    def __init__(self, config: FeishuConfig, bus: MessageBus):
+    def __init__(self, config: FeishuConfig, bus: MessageBus) -> None:
         super().__init__(config, bus)
         self.config: FeishuConfig = config
         self._client: Any = None

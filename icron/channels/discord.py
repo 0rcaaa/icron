@@ -19,7 +19,7 @@ class DiscordChannel(BaseChannel):
 
     name = "discord"
 
-    def __init__(self, config: DiscordConfig, bus: MessageBus):
+    def __init__(self, config: DiscordConfig, bus: MessageBus) -> None:
         super().__init__(config, bus)
         self.config: DiscordConfig = config
         self._client: Any | None = None
