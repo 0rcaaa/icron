@@ -177,7 +177,8 @@ class AnthropicProvider(LLMProvider):
                 finish_reason="error",
             )
 
-    def _convert_tools_to_anthropic(self, tools: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    @staticmethod
+    def _convert_tools_to_anthropic(tools: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Convert OpenAI-style tools to Anthropic format.
 
