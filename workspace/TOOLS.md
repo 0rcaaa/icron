@@ -350,6 +350,68 @@ Returns current conditions, temperature, humidity, and forecast.
 
 ---
 
+## MCP (Model Context Protocol) Tools
+
+MCP servers extend icron with additional tools dynamically loaded at runtime.
+
+### How It Works
+
+1. MCP servers are configured in `config.json` under `mcp.servers`
+2. On startup, icron connects to configured servers and discovers their tools
+3. Tools become available with an `mcp_<server>_` prefix
+
+### Currently Configured Servers
+
+Check runtime status via `/api/mcp/status` or the MCP tab in the Control Room UI.
+
+**Common MCP servers:**
+| Server | Tools | Description |
+|--------|-------|-------------|
+| time | 2 | Get current time, convert timezones |
+| filesystem | 14 | File operations (read, write, list, search) |
+| fetch | 4 | HTTP requests (get, post JSON, fetch) |
+| sequential-thinking | 1 | Step-by-step reasoning |
+
+### Tool Examples
+
+MCP tools are called like any other tool:
+
+```python
+# Time server tools
+mcp_time_get_current_time(timezone="America/New_York")
+
+# Filesystem server tools  
+mcp_filesystem_read_file(path="/path/to/file")
+mcp_filesystem_search_files(pattern="*.py")
+
+# Fetch server tools
+mcp_fetch_fetch(url="https://api.example.com/data")
+```
+
+### Adding MCP Servers
+
+Via Control Room UI:
+1. Go to MCP tab
+2. Enable presets or add custom servers
+
+Via config.json:
+```json
+{
+  "mcp": {
+    "enabled": true,
+    "servers": {
+      "your-server": {
+        "transport": "stdio",
+        "command": "npx",
+        "args": ["-y", "@server/package"]
+      }
+    }
+  }
+}
+```
+
+---
+
 ## Adding Custom Tools
 
 To add custom tools:
