@@ -1,6 +1,5 @@
 """Native OpenAI provider implementation."""
 
-import asyncio
 import logging
 from typing import Any
 
