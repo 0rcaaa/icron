@@ -34,11 +34,10 @@ def count_message_tokens(message: dict) -> int:
     
     # Handle list content (images + text)
     if isinstance(content, list):
-        text_content = ""
-        for item in content:
-            if isinstance(item, dict) and item.get("type") == "text":
-                text_content += item.get("text", "")
-        content = text_content
+        content = "".join(
+            item.get("text", "") for item in content
+            if isinstance(item, dict) and item.get("type") == "text"
+        )
     
     # Add ~4 tokens for role/formatting overhead
     return count_tokens(str(content)) + 4
