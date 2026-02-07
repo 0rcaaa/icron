@@ -1,7 +1,7 @@
 """Utility functions for icron."""
 
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 
 
@@ -67,8 +67,8 @@ def today_date() -> str:
 
 
 def timestamp() -> str:
-    """Get current timestamp in ISO format."""
-    return datetime.now().isoformat()
+    """Get current timestamp in ISO format with UTC timezone."""
+    return datetime.now(tz=timezone.utc).isoformat()
 
 
 def truncate_string(s: str, max_len: int = 100, suffix: str = "...") -> str:
