@@ -557,8 +557,8 @@ def validate():
     # Check 2: Valid JSON
     import json
     try:
-        with open(config_path) as f:
-            raw_data = json.load(f)
+        with open(config_path, encoding="utf-8") as f:
+            json.load(f)  # Validate JSON is parseable
         pass_check("Valid JSON format")
     except json.JSONDecodeError as e:
         fail_check(
