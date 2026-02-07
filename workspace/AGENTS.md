@@ -86,16 +86,19 @@ Available templates:
 
 ## Memory
 
-- Use `memory/` directory for daily notes
-- Use `MEMORY.md` for long-term information
+- Use `memory/` directory for daily notes (auto-created as `memory/YYYY-MM-DD.md`)
+- Use `memory/MEMORY.md` for long-term curated information
+- See TOOLS.md for `memory_search`, `memory_write`, `memory_get`, `memory_list` tools
 
 ## Scheduled Reminders
 
-When user asks for a reminder at a specific time, use `exec` to run:
-```
-icron cron add --name "reminder" --message "Your message" --at "YYYY-MM-DDTHH:MM:SS" --deliver --to "USER_ID" --channel "CHANNEL"
-```
-Get USER_ID and CHANNEL from the current session (e.g., `8281248569` and `telegram` from `telegram:8281248569`).
+Use the dedicated reminder tools to set, list, and cancel reminders:
+
+- `set_reminder(message, when)` - Set a reminder (e.g., "in 30 minutes", "at 2pm", "tomorrow at 9am")
+- `list_reminders()` - List all active reminders
+- `cancel_reminder(reminder_id)` - Cancel a specific reminder
+
+See TOOLS.md for full documentation on reminder tools.
 
 **Do NOT just write reminders to MEMORY.md** — that won't trigger actual notifications.
 

@@ -38,7 +38,7 @@ from icron.agent.tools.memory_tools import (
     MemoryGetTool,
     MemoryListTool,
 )
-from icron.agent.tools.reminder_tools import ReminderTool, ListRemindersool, CancelReminderTool
+from icron.agent.tools.reminder_tools import ReminderTool, ListRemindersTool, CancelReminderTool
 from icron.agent.subagent import SubagentManager
 from icron.agent.commands import CommandHandler
 from icron.session.manager import SessionManager
@@ -188,7 +188,7 @@ class AgentLoop:
         
         # Reminder tools (cron-based)
         self._reminder_tool = ReminderTool(cron_service=self.cron_service)
-        self._list_reminders_tool = ListRemindersool(cron_service=self.cron_service)
+        self._list_reminders_tool = ListRemindersTool(cron_service=self.cron_service)
         self._cancel_reminder_tool = CancelReminderTool(cron_service=self.cron_service)
         self.tools.register(self._reminder_tool)
         self.tools.register(self._list_reminders_tool)

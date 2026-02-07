@@ -210,7 +210,7 @@ class ReminderTool(Tool):
         return f"✅ Reminder scheduled {when_str}. Message: \"{message}\" (Do not recalculate or restate the time - use exactly what's shown.)"
 
 
-class ListRemindersool(Tool):
+class ListRemindersTool(Tool):
     """Tool to list active reminders."""
     
     def __init__(self, cron_service: "CronService | None" = None):
