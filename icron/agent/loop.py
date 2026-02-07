@@ -321,7 +321,7 @@ class AgentLoop:
         
         Args:
             content: The text content to chunk.
-            file_path: Path to the file (for logging).
+            file_path: Path to the source file (unused, reserved for future use).
             
         Returns:
             List of (chunk_text, start_line, end_line) tuples.
