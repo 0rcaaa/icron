@@ -102,7 +102,7 @@ class ProvidersConfig(BaseModel):
 
 class GatewayConfig(BaseModel):
     """Gateway/server configuration."""
-    host: str = "0.0.0.0"
+    host: str = "127.0.0.1"  # Default to localhost for security
     port: int = 3883
 
 
