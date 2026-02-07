@@ -351,7 +351,7 @@ def setup(
         # Check existing key
         existing_key = getattr(config.providers, selected_provider).api_key
         if existing_key:
-            masked = existing_key[:8] + "..." + existing_key[-4:]
+            masked = f"{existing_key[:8]}...{existing_key[-4:]}"
             console.print(f"[dim]Current key: {masked}[/dim]")
             if not Confirm.ask("Replace existing key?", default=False):
                 api_key = existing_key
