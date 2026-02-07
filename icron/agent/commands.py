@@ -328,7 +328,7 @@ class CommandHandler:
             topic = args.lower().strip()
             if topic in HELP_TOPICS:
                 return HELP_TOPICS[topic], True
-            available = ", ".join(sorted(HELP_TOPICS.keys()))
+            available = ", ".join(sorted(HELP_TOPICS))
             return (
                 f"❓ Unknown help topic: `{topic}`\n\n"
                 f"Available topics: {available}",
@@ -874,13 +874,13 @@ class CommandHandler:
 
         parts = args.split(maxsplit=1)
         if not parts:
-            available = ", ".join(TEMPLATES.keys())
+            available = ", ".join(TEMPLATES)
             return f"\u2753 Please specify a template: {available}", True
         template_name = parts[0].lower()
         template_args = parts[1] if len(parts) > 1 else ""
 
         if template_name not in TEMPLATES:
-            available = ", ".join(TEMPLATES.keys())
+            available = ", ".join(TEMPLATES)
             return (
                 f"❓ Unknown template: `{template_name}`\n\n"
                 f"Available templates: {available}\n"
