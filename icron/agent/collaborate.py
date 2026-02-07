@@ -5,7 +5,6 @@ iterative dialogue where models question and build on each other's ideas
 until reaching consensus.
 """
 
-import asyncio
 from dataclasses import dataclass, field
 from typing import Any
 

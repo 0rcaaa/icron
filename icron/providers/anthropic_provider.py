@@ -1,6 +1,5 @@
 """Native Anthropic provider implementation with full API support."""
 
-import asyncio
 import logging
 from typing import Any
 
