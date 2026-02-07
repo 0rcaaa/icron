@@ -1,7 +1,7 @@
 """Memory system for persistent agent memory."""
 
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from icron.utils.helpers import ensure_dir, today_date
 
@@ -63,8 +63,6 @@ class MemoryStore:
         Returns:
             Combined memory content.
         """
-        from datetime import timedelta
-        
         memories = []
         today = datetime.now().date()
         
