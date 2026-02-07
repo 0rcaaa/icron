@@ -133,7 +133,7 @@ class MCPManager:
                 # Use timeout to prevent hanging on slow/unresponsive servers
                 # npm packages may need longer to download and initialize on first run
                 transport_type = config.get("transport", "stdio")
-                timeout_seconds = 45.0 if transport_type == "sse" else 45.0
+                timeout_seconds = 60.0 if transport_type == "sse" else 45.0
 
                 if transport_type == "sse":
                     await asyncio.wait_for(
