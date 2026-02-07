@@ -348,7 +348,8 @@ class TelegramChannel(BaseChannel):
             }
         )
     
-    def _get_extension(self, media_type: str, mime_type: str | None) -> str:
+    @staticmethod
+    def _get_extension(media_type: str, mime_type: str | None) -> str:
         """Get file extension based on media type."""
         if mime_type:
             ext_map = {
