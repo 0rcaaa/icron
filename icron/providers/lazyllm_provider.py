@@ -44,7 +44,7 @@ class LazyLLMProvider(LLMProvider):
         api_base: str | None = None,
         default_model: str = "qwen-plus",
         source: str | None = None,
-        type: str = "LLM",
+        model_type: str = "LLM",
     ):
         super().__init__(api_key, api_base)
         self.default_model = default_model
@@ -55,7 +55,7 @@ class LazyLLMProvider(LLMProvider):
                 f"Known sources: {', '.join(self.KNOWN_SOURCES)}",
                 stacklevel=2,
             )
-        self.model_type = self._normalize_type(type)
+        self.model_type = self._normalize_type(model_type)
         self.client = self._create_client(
             model=self.default_model,
             source=self.source,
