@@ -431,7 +431,7 @@ def setup(
     try:
         workspace_path.mkdir(parents=True, exist_ok=True)
         test_file = workspace_path / ".icron_test"
-        test_file.write_text("test")
+        test_file.write_text("test", encoding="utf-8")
         test_file.unlink()
         console.print(f"[green]✓[/green] Workspace: {workspace_path}\n")
         config.agents.defaults.workspace = workspace_input
@@ -643,7 +643,7 @@ def validate():
         # Check write permissions
         try:
             test_file = workspace / ".icron_validate_test"
-            test_file.write_text("test")
+            test_file.write_text("test", encoding="utf-8")
             test_file.unlink()
             pass_check("Workspace is writable")
         except Exception as e:
