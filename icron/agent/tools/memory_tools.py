@@ -73,7 +73,7 @@ class MemorySearchTool(Tool):
     async def execute(self, **kwargs: Any) -> str:
         """Search memories semantically."""
         query = kwargs.get("query", "")
-        limit = kwargs.get("limit", 5)
+        limit = min(max(kwargs.get("limit", 5), 1), 20)  # Enforce bounds
         
         if not query:
             return "Error: 'query' is required"
