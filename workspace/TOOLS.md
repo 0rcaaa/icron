@@ -28,6 +28,66 @@ List contents of a directory.
 list_dir(path: str) -> str
 ```
 
+### rename_file
+Rename a file or directory to a new name in the same location.
+```
+rename_file(old_path: str, new_name: str) -> str
+```
+
+**Parameters:**
+- `old_path`: The current path of the file or directory
+- `new_name`: The new name (not full path, just the name)
+
+### move_file
+Move a file or directory to a new location.
+```
+move_file(source: str, destination: str) -> str
+```
+
+### copy_file
+Copy a file to a new location.
+```
+copy_file(source: str, destination: str) -> str
+```
+
+### create_dir
+Create a new directory (including parent directories if needed).
+```
+create_dir(path: str) -> str
+```
+
+## Code Search
+
+### glob
+Find files matching a glob pattern.
+```
+glob(pattern: str, path: str = ".") -> str
+```
+
+**Examples:**
+```
+glob("**/*.py")           # All Python files recursively
+glob("src/**/*.ts")       # TypeScript files in src/
+glob("*.md", "docs")      # Markdown files in docs/
+```
+
+### grep
+Search for text patterns in files.
+```
+grep(pattern: str, path: str = ".", include: str = None) -> str
+```
+
+**Parameters:**
+- `pattern`: Text or regex pattern to search for
+- `path`: Directory to search in (default: current directory)
+- `include`: Optional file pattern filter (e.g., "*.py")
+
+**Examples:**
+```
+grep("TODO")              # Find all TODOs
+grep("def main", ".", "*.py")  # Find main functions in Python files
+```
+
 ## Shell Execution
 
 ### exec
@@ -180,6 +240,46 @@ spawn(task: str, label: str = None) -> str
 ```
 
 Use for complex or time-consuming tasks that can run independently. The subagent will complete the task and report back when done.
+
+## Reminder Tools
+
+Direct tool APIs for setting and managing reminders programmatically.
+
+### reminder_set
+Set a reminder to be delivered after a delay.
+```
+reminder_set(message: str, delay: str) -> str
+```
+
+**Parameters:**
+- `message`: The reminder message to deliver
+- `delay`: Time delay (e.g., "5m", "2h", "1d", or natural language like "in 30 minutes")
+
+**Examples:**
+```
+reminder_set("Check the build status", "15m")
+reminder_set("Call John back", "2h")
+reminder_set("Submit weekly report", "1d")
+```
+
+### reminder_list
+List all active reminders.
+```
+reminder_list() -> str
+```
+
+Returns a formatted list of pending reminders with their IDs, messages, and scheduled times.
+
+### reminder_cancel
+Cancel a specific reminder by ID.
+```
+reminder_cancel(reminder_id: str) -> str
+```
+
+**Example:**
+```
+reminder_cancel("abc123")
+```
 
 ## Scheduled Reminders (Cron)
 
