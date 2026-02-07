@@ -8,6 +8,7 @@ from __future__ import annotations
 import asyncio
 import os
 from abc import ABC, abstractmethod
+from operator import itemgetter
 from typing import TYPE_CHECKING, Any
 
 import httpx
@@ -162,7 +163,7 @@ class OpenAIEmbedding(EmbeddingProvider):
         result = await self._request_with_retry(payload)
 
         # Sort by index to maintain order
-        embeddings_data = sorted(result["data"], key=lambda x: x["index"])
+        embeddings_data = sorted(result["data"], key=itemgetter("index"))
         return [item["embedding"] for item in embeddings_data]
 
     @property
