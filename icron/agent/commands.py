@@ -767,7 +767,7 @@ class CommandHandler:
                 try:
                     import json
                     metadata = json.loads(metadata)
-                except Exception:
+                except json.JSONDecodeError:
                     metadata = {}
 
             if isinstance(metadata, dict):

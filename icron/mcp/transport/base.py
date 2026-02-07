@@ -41,12 +41,12 @@ class Transport(ABC):
         Returns:
             Tuple of (read_stream, write_stream) for JSON-RPC communication
         """
-        pass
+        ...
 
     @abstractmethod
     async def disconnect(self) -> None:
         """Close connection and cleanup resources."""
-        pass
+        ...
 
     async def __aenter__(self) -> "Transport":
         await self.connect()
