@@ -521,7 +521,7 @@ class AgentLoop:
                 )
                 
                 # DEBUG: Log messages after adding assistant message
-                logger.debug(f"[DEBUG] Messages AFTER add_assistant_message:")
+                logger.debug("[DEBUG] Messages AFTER add_assistant_message:")
                 for i, m in enumerate(messages):
                     role = m.get('role', 'unknown')
                     tool_calls = m.get('tool_calls', [])

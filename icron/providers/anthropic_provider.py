@@ -151,13 +151,13 @@ class AnthropicProvider(LLMProvider):
         except AuthenticationError as e:
             logger.error(f"Anthropic authentication error: {e}", exc_info=True)
             return LLMResponse(
-                content=f"Anthropic API authentication failed. Check your API key.",
+                content="Anthropic API authentication failed. Check your API key.",
                 finish_reason="error",
             )
         except RateLimitError as e:
             logger.error(f"Anthropic rate limit error: {e}", exc_info=True)
             return LLMResponse(
-                content=f"Anthropic API rate limit exceeded. Please try again later.",
+                content="Anthropic API rate limit exceeded. Please try again later.",
                 finish_reason="error",
             )
         except APITimeoutError as e:

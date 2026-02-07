@@ -104,13 +104,13 @@ class OpenAIProvider(LLMProvider):
         except AuthenticationError as e:
             logger.error(f"OpenAI authentication error: {e}", exc_info=True)
             return LLMResponse(
-                content=f"OpenAI API authentication failed. Check your API key.",
+                content="OpenAI API authentication failed. Check your API key.",
                 finish_reason="error",
             )
         except RateLimitError as e:
             logger.error(f"OpenAI rate limit error: {e}", exc_info=True)
             return LLMResponse(
-                content=f"OpenAI API rate limit exceeded. Please try again later.",
+                content="OpenAI API rate limit exceeded. Please try again later.",
                 finish_reason="error",
             )
         except APITimeoutError as e:
