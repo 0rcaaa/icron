@@ -210,8 +210,9 @@ class VectorIndex:
         count = len(data) // 4  # 4 bytes per float
         return list(struct.unpack(f"{count}f", data))
 
+    @staticmethod
     def _cosine_similarity(
-        self, vec_a: list[float], vec_b: list[float]
+        vec_a: list[float], vec_b: list[float]
     ) -> float:
         """Compute cosine similarity between two vectors.
 
