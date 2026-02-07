@@ -75,11 +75,13 @@ class FeishuChannel(BaseChannel):
         self._loop = asyncio.get_running_loop()
         
         # Create Lark client for sending messages
-        self._client = lark.Client.builder() \
-            .app_id(self.config.app_id) \
-            .app_secret(self.config.app_secret) \
-            .log_level(lark.LogLevel.INFO) \
+        self._client = (
+            lark.Client.builder()
+            .app_id(self.config.app_id)
+            .app_secret(self.config.app_secret)
+            .log_level(lark.LogLevel.INFO)
             .build()
+        )
         
         # Create event handler (only register message receive, ignore other events)
         event_handler = lark.EventDispatcherHandler.builder(
