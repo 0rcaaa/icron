@@ -731,7 +731,7 @@ class AgentLoop:
         
         # Send initial message
         providers = collab_service.get_configured_providers()
-        provider_list = ", ".join([f"{p.emoji} {p.name}" for p in providers[:2]])
+        provider_list = ", ".join(f"{p.emoji} {p.name}" for p in providers[:2])
         
         await self.bus.publish_outbound(OutboundMessage(
             channel=msg.channel,
